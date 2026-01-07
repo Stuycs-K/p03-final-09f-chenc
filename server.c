@@ -52,7 +52,6 @@ int send404(int clientSock) {
 }
 int sendFile(int clientSock, char * firstLine) {
   sscanf(firstLine,"GET %s", firstLine);
-  void * outFile = malloc(1024);
   int f, bytesToRead;
   struct stat stats;
   printf("FirstLine: %s, size: %d\n", firstLine, strlen(firstLine));
@@ -65,10 +64,15 @@ int sendFile(int clientSock, char * firstLine) {
     stat(firstLine+1,&stats);
   }
   bytesToRead = stats.st_size;
+  void * outFile = malloc(bytesToRead+1);
   int readAmount = read(f,outFile,bytesToRead);
   void * output = malloc(1100);
   char * header;
-  if (strlen(firstLine) == 1) header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
+  if (strlen(firstLine) == 1) {
+    header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
+  } else {
+    header = "HTTP/1.1 200 OK\nContent-Type: application/multipart-core;\nContent-Disposition: attachment;\n\n";
+  }
   memcpy(output,header,strlen(header));
   memcpy(output+strlen(header),outFile,readAmount);
   int amountSent = send(clientSock,output,readAmount+strlen(header),0);
