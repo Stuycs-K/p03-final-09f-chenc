@@ -27,7 +27,7 @@ int makeServerSocket() {
   sockAddr = (struct sockaddr_in *)serverInfo->ai_addr;
   inet_ntop(serverInfo->ai_family, &(sockAddr->sin_addr),serverIP, 128);
   printf("Server Address: %s:%s\n", serverIP, PORT);
-  listen(serverSock,1);
+  listen(serverSock,10);
   freeaddrinfo(hints);
   freeaddrinfo(serverInfo);
   return serverSock;
@@ -47,5 +47,7 @@ int main() {
       char * request = (char *) malloc(1024);
       int bytesGot = recv(clientSock,request,1024,0);
       printf("Recieved data: \n%s, numBytes: %d\n", request, bytesGot);
+      if (!strncmp(request,"GET",3)) printf("GET REQUEST HANDLED\n");
+      close(clientSock);
   }
 }
