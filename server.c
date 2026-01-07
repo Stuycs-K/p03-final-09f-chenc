@@ -59,10 +59,11 @@ int main() {
         int f = open("test.html", O_RDONLY, 0);
         read(f,outFile,1024);
         void * output = malloc(1100);
-        char * header = "HTTP/1.1 200 OK\n";
-        memcpy(output,header,strlen(header));
-        memcpy(output+strlen(header),outFile,1024);
-        send(clientSock,outFile,1024,0);
+        char * header = "HTTP/1.1 200 OK\n\n";
+        memcpy(output,header,strlen(header)+1);
+        memcpy(output+strlen(header)+1,outFile,1024);
+        send(clientSock,header,1024,0);
+        printf("What was sent: \n%s", header);
       }
       close(clientSock);
   }
