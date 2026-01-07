@@ -7,7 +7,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <arpa/inet.h>
-#define PORT "16532"
+#define PORT "38203"
 void err() {
   printf("Error: %s\n", strerror(errno));
   exit(1);
@@ -30,19 +30,19 @@ int makeServerSocket() {
   listen(serverSock,1);
   freeaddrinfo(hints);
   freeaddrinfo(serverInfo);
-  return 0;
+  return serverSock;
 }
 int makeClientSocket(int serverSock) {
   struct sockaddr_storage clientAddr;
   int clientSock;
   int size = sizeof(struct sockaddr_storage);
-  clientSock = accept(serverSock,(struct sockaddr_storage *)&clientAddr,&clientSock);
+  clientSock = accept(serverSock,(struct sockaddr *)&clientAddr,&clientSock);
   printf("Connection Success!\n");
   return clientSock;
 }
 int main() {
   int serverSock = makeServerSocket();
   while (1) {
-      clientSock = makeClientSocket;
+      int clientSock = makeClientSocket(serverSock);
   }
 }
