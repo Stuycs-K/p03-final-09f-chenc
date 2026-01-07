@@ -57,13 +57,14 @@ int main() {
         //TODO: Read the request, collect the file, and send it to the client.
         void * outFile = malloc(1024);
         int f = open("test.html", O_RDONLY, 0);
-        read(f,outFile,1024);
+        int readAmount = read(f,outFile,1024);
+        printf("Read Amount: %d\n", readAmount);
         void * output = malloc(1100);
-        char * header = "HTTP/1.1 200 OK\n\n";
-        memcpy(output,header,strlen(header)+1);
-        memcpy(output+strlen(header)+1,outFile,1024);
-        send(clientSock,header,1024,0);
-        printf("What was sent: \n%s", header);
+        char * header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n";
+        memcpy(output,header,strlen(header));
+        memcpy(output+strlen(header),outFile,readAmount);
+        send(clientSock,output,readAmount+strlen(header),0);
+        printf("What was sent: \n%s", output);
       }
       close(clientSock);
   }
