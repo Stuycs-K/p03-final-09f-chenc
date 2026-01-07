@@ -18,7 +18,12 @@ int makeSocket() {
   hints->ai_socktype = SOCK_STREAM;
   hints->ai_flags = AI_PASSIVE;
   if (getaddrinfo(NULL,PORT,hints, &serverInfo)) err();
-
+  int serverSock;
+  serverSock = socket(serverInfo->ai_family,serverInfo->ai_socktype,serverInfo->ai_protocol);
+  bind(serverSock,serverInfo->ai_addr,serverInfo->ai_addrlen);
+  char * serverIP = (char *)malloc(128);
+  inet_ntop(p_ai_family, )
+  printf("Server Address: %s:%s\n", )
   freeaddrinfo(hints);
   freeaddrinfo(serverInfo);
 }
