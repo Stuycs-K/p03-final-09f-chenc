@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <arpa/inet.h>
+#include <sys/stat.h>
 #define PORT "38203"
 void err() {
   printf("Error: %s\n", strerror(errno));
@@ -47,13 +48,17 @@ int makeClientSocket(int serverSock) {
 int sendFile(int clientSock, char * firstLine) {
   sscanf(firstLine,"GET %s", firstLine);
   void * outFile = malloc(1024);
-  int f;
+  int f, bytesToRead;
   if (strlen(firstLine) == 1) {
     f = open("test.html", O_RDONLY, 0);
+    struct stat stats;
+  
   } else {
-    f = open()
+    f = open(firstLine+1, O_RDONLY, 0);
+    struct stat stats;
+    stat(firstLine+1,&stats);
   }
-  int readAmount = read(f,outFile,1024);
+  int readAmount = read(f,outFile,bytesToRead);
   void * output = malloc(1100);
   char * header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
   memcpy(output,header,strlen(header));
