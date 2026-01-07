@@ -45,17 +45,23 @@ int makeClientSocket(int serverSock) {
   printf("Connection Success!\n");
   return clientSock;
 }
+int send404(int clientSock) {
+  char * header = "HTTP/1.1 404 Not Found\n\n";
+  send(clientSock,header,strlen(header),0);
+  exit(1);
+}
 int sendFile(int clientSock, char * firstLine) {
   sscanf(firstLine,"GET %s", firstLine);
   void * outFile = malloc(1024);
   int f, bytesToRead;
   struct stat stats;
-  printf("FirstLine: %s\n", firstLine);
+  printf("FirstLine: %s, size: %d\n", firstLine, strlen(firstLine));
   if (strlen(firstLine) == 1) {
     f = open("test.html", O_RDONLY, 0);
     stat("test.html",&stats);
   } else {
     f = open(firstLine+1, O_RDONLY, 0);
+    if (errno != 0) send404(clientSock);
     stat(firstLine+1,&stats);
   }
   bytesToRead = stats.st_size;
@@ -65,7 +71,8 @@ int sendFile(int clientSock, char * firstLine) {
   if (strlen(firstLine) == 1) header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
   memcpy(output,header,strlen(header));
   memcpy(output+strlen(header),outFile,readAmount);
-  send(clientSock,output,readAmount+strlen(header),0);
+  int amountSent = send(clientSock,output,readAmount+strlen(header),0);
+  printf("Amount Sent: %d\n", amountSent);
   free(outFile);
   free(output);
 }
