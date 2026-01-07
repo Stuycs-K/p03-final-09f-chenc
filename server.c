@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -39,7 +40,6 @@ int makeClientSocket(int serverSock) {
   int clientSock;
   int size = sizeof(struct sockaddr_storage);
   clientSock = accept(serverSock,(struct sockaddr *)&clientAddr,&size);
-  printf("Error: %s\n", strerror(errno));
   printf("Connection Success!\n");
   return clientSock;
 }
@@ -57,7 +57,12 @@ int main() {
         //TODO: Read the request, collect the file, and send it to the client.
         void * outFile = malloc(1024);
         int f = open("test.html", O_RDONLY, 0);
-        
+        read(f,outFile,1024);
+        void * output = malloc(1100);
+        char * header = "HTTP/1.1 200 OK\n";
+        memcpy(output,header,strlen(header));
+        memcpy(output+strlen(header),outFile,1024);
+        send(clientSock,outFile,1024,0);
       }
       close(clientSock);
   }
