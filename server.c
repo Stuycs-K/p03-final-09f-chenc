@@ -43,29 +43,37 @@ int makeClientSocket(int serverSock) {
   printf("Connection Success!\n");
   return clientSock;
 }
+int sendFile(int clientSock, char * firstLine) {
+  void * outFile = malloc(1024);
+  int f = open("test.html", O_RDONLY, 0);
+  int readAmount = read(f,outFile,1024);
+  void * output = malloc(1100);
+  char * header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
+  memcpy(output,header,strlen(header));
+  memcpy(output+strlen(header),outFile,readAmount);
+  send(clientSock,output,readAmount+strlen(header),0);
+}
+int childBehavior(int clientSock) {
+  char * request = (char *) malloc(1024);
+  int bytesGot = recv(clientSock,request,1024,0);
+  if (bytesGot == -1) err();
+  char * firstLine = (char *) malloc(128);
+  sscanf(request,"%[^\n]", firstLine);
+  if (!strncmp(firstLine,"GET",3)) {
+    //TODO: Read the request, collect the file, and send it to the client.
+    sendFile(clientSock,firstLine);
+  }
+}
 int main() {
   int serverSock = makeServerSocket();
   while (1) {
-      int clientSock = makeClientSocket(serverSock);
-      char * request = (char *) malloc(1024);
-      int bytesGot = recv(clientSock,request,1024,0);
-      if (bytesGot == -1) err();
-      printf("Recieved data: \n%s, numBytes: %d\n", request, bytesGot);
-      char * firstLine = (char *) malloc(128);
-      sscanf(request,"%[^\n]", firstLine);
-      if (!strncmp(request,"GET",3)) {
-        //TODO: Read the request, collect the file, and send it to the client.
-        void * outFile = malloc(1024);
-        int f = open("test.html", O_RDONLY, 0);
-        int readAmount = read(f,outFile,1024);
-        printf("Read Amount: %d\n", readAmount);
-        void * output = malloc(1100);
-        char * header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
-        memcpy(output,header,strlen(header));
-        memcpy(output+strlen(header),outFile,readAmount);
-        send(clientSock,output,readAmount+strlen(header),0);
-        printf("What was sent: \n%s", output);
+    int clientSock = makeClientSocket(serverSock);
+      pid_t p;
+      p = fork();
+      if (p == 0) {
+        childBehavior(clientSock);
+      } else {
+        close(clientSock);
       }
-      close(clientSock);
   }
 }
