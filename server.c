@@ -33,6 +33,7 @@ int makeServerSocket() {
   listen(serverSock,10);
   freeaddrinfo(hints);
   freeaddrinfo(serverInfo);
+  free(serverIP);
   return serverSock;
 }
 int makeClientSocket(int serverSock) {
@@ -44,14 +45,22 @@ int makeClientSocket(int serverSock) {
   return clientSock;
 }
 int sendFile(int clientSock, char * firstLine) {
+  sscanf(firstLine,"GET %s", firstLine);
   void * outFile = malloc(1024);
-  int f = open("test.html", O_RDONLY, 0);
+  int f;
+  if (strlen(firstLine) == 1) {
+    f = open("test.html", O_RDONLY, 0);
+  } else {
+    f = open()
+  }
   int readAmount = read(f,outFile,1024);
   void * output = malloc(1100);
   char * header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
   memcpy(output,header,strlen(header));
   memcpy(output+strlen(header),outFile,readAmount);
   send(clientSock,output,readAmount+strlen(header),0);
+  free(outFile);
+  free(output);
 }
 int childBehavior(int clientSock) {
   char * request = (char *) malloc(1024);
@@ -63,6 +72,8 @@ int childBehavior(int clientSock) {
     //TODO: Read the request, collect the file, and send it to the client.
     sendFile(clientSock,firstLine);
   }
+  free(request);
+  free(firstLine);
 }
 int main() {
   int serverSock = makeServerSocket();
