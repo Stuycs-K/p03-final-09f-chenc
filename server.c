@@ -49,18 +49,20 @@ int sendFile(int clientSock, char * firstLine) {
   sscanf(firstLine,"GET %s", firstLine);
   void * outFile = malloc(1024);
   int f, bytesToRead;
+  struct stat stats;
+  printf("FirstLine: %s\n", firstLine);
   if (strlen(firstLine) == 1) {
     f = open("test.html", O_RDONLY, 0);
-    struct stat stats;
-  
+    stat("test.html",&stats);
   } else {
     f = open(firstLine+1, O_RDONLY, 0);
-    struct stat stats;
     stat(firstLine+1,&stats);
   }
+  bytesToRead = stats.st_size;
   int readAmount = read(f,outFile,bytesToRead);
   void * output = malloc(1100);
-  char * header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
+  char * header;
+  if (strlen(firstLine) == 1) header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
   memcpy(output,header,strlen(header));
   memcpy(output+strlen(header),outFile,readAmount);
   send(clientSock,output,readAmount+strlen(header),0);
