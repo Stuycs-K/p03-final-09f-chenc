@@ -60,7 +60,7 @@ int main() {
         int readAmount = read(f,outFile,1024);
         printf("Read Amount: %d\n", readAmount);
         void * output = malloc(1100);
-        char * header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n";
+        char * header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
         memcpy(output,header,strlen(header));
         memcpy(output+strlen(header),outFile,readAmount);
         send(clientSock,output,readAmount+strlen(header),0);
