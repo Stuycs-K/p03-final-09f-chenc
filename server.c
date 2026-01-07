@@ -51,7 +51,14 @@ int main() {
       int bytesGot = recv(clientSock,request,1024,0);
       if (bytesGot == -1) err();
       printf("Recieved data: \n%s, numBytes: %d\n", request, bytesGot);
-      if (!strncmp(request,"GET",3)) printf("GET REQUEST HANDLED\n");
+      char * firstLine = (char *) malloc(128);
+      sscanf(request,"%[^\n]", firstLine);
+      if (!strncmp(request,"GET",3)) {
+        //TODO: Read the request, collect the file, and send it to the client.
+        void * outFile = malloc(1024);
+        int f = open("test.html", O_RDONLY, 0);
+        
+      }
       close(clientSock);
   }
 }
