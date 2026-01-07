@@ -44,5 +44,8 @@ int main() {
   int serverSock = makeServerSocket();
   while (1) {
       int clientSock = makeClientSocket(serverSock);
+      char * request = (char *) malloc(1024);
+      int bytesGot = recv(clientSock,request,1024,0);
+      printf("Recieved data: \n%s, numBytes: %d\n", request, bytesGot);
   }
 }
