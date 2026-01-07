@@ -21,6 +21,8 @@ int makeServerSocket() {
   if (getaddrinfo(NULL,PORT,hints, &serverInfo)) err();
   int serverSock;
   serverSock = socket(serverInfo->ai_family,serverInfo->ai_socktype,serverInfo->ai_protocol);
+  int yes = 1;
+  int sockOpt =  setsockopt(serverSock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
   bind(serverSock,serverInfo->ai_addr,serverInfo->ai_addrlen);
   char * serverIP = (char *)malloc(128);
   struct sockaddr_in *sockAddr;
@@ -36,7 +38,8 @@ int makeClientSocket(int serverSock) {
   struct sockaddr_storage clientAddr;
   int clientSock;
   int size = sizeof(struct sockaddr_storage);
-  clientSock = accept(serverSock,(struct sockaddr *)&clientAddr,&clientSock);
+  clientSock = accept(serverSock,(struct sockaddr *)&clientAddr,&size);
+  printf("Error: %s\n", strerror(errno));
   printf("Connection Success!\n");
   return clientSock;
 }
@@ -46,6 +49,7 @@ int main() {
       int clientSock = makeClientSocket(serverSock);
       char * request = (char *) malloc(1024);
       int bytesGot = recv(clientSock,request,1024,0);
+      if (bytesGot == -1) err();
       printf("Recieved data: \n%s, numBytes: %d\n", request, bytesGot);
       if (!strncmp(request,"GET",3)) printf("GET REQUEST HANDLED\n");
       close(clientSock);
