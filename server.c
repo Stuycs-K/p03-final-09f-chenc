@@ -82,9 +82,12 @@ int sendFile(int clientSock, char * firstLine) {
   free(outFile);
   free(output);
 }
+int getFile(int clientSock, char * bytesRecieved) {
+  printf("Recieved: %s\n", bytesRecieved);
+}
 int childBehavior(int clientSock) {
-  char * request = (char *) malloc(1024);
-  int bytesGot = recv(clientSock,request,1024,0);
+  char * request = (char *) malloc(1000000);
+  int bytesGot = recv(clientSock,request,1000000,0);
   if (bytesGot == -1) err();
   char * firstLine = (char *) malloc(128);
   sscanf(request,"%[^\n]", firstLine);
@@ -93,7 +96,7 @@ int childBehavior(int clientSock) {
     sendFile(clientSock,firstLine);
   }
   if (!strncmp(firstLine,"POST",4)) {
-    printf("POST request recieved!\n");
+    getFile(clientSock,request);
   }
   free(request);
   free(firstLine);
