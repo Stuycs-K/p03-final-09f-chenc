@@ -71,11 +71,13 @@ int sendFile(int clientSock, char * firstLine) {
   if (strlen(firstLine) == 1) {
     header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
   } else {
-    header = "HTTP/1.1 200 OK\nContent-Type: application/multipart-core;\nContent-Disposition: attachment;\n\n";
+    header = (char *) malloc(256);
+    sprintf(header, "HTTP/1.1 200 OK\nContent-Type: application/octet-stream;\nContent-Disposition: attachment;\nContent-Length: %d\n\n",readAmount);
+    //header = "HTTP/1.1 200 OK\nContent-Type: application/octet-stream;\nContent-Disposition: attachment;\n\n";
   }
   memcpy(output,header,strlen(header));
   memcpy(output+strlen(header),outFile,readAmount);
-  int amountSent = send(clientSock,output,readAmount+strlen(header),0);
+  int amountSent = send(clientSock,output,readAmount+strlen(header)+1,0);
   printf("Amount Sent: %d\n", amountSent);
   free(outFile);
   free(output);
