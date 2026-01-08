@@ -66,19 +66,19 @@ int sendFile(int clientSock, char * firstLine) {
   bytesToRead = stats.st_size;
   void * outFile = malloc(bytesToRead+1);
   int readAmount = read(f,outFile,bytesToRead);
-  void * output = malloc(1100);
   char * header;
   if (strlen(firstLine) == 1) {
     header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
   } else {
     header = (char *) malloc(256);
     sprintf(header, "HTTP/1.1 200 OK\nContent-Type: application/octet-stream;\nContent-Disposition: attachment;\nContent-Length: %d\n\n",readAmount);
-    //header = "HTTP/1.1 200 OK\nContent-Type: application/octet-stream;\nContent-Disposition: attachment;\n\n";
   }
+  void * output = malloc(readAmount+strlen(header)+1);
   memcpy(output,header,strlen(header));
   memcpy(output+strlen(header),outFile,readAmount);
   int amountSent = send(clientSock,output,readAmount+strlen(header)+1,0);
   printf("Amount Sent: %d\n", amountSent);
+  if (strlen(firstLine) != 1) free(header);
   free(outFile);
   free(output);
 }
