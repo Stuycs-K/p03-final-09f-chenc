@@ -92,6 +92,9 @@ int childBehavior(int clientSock) {
     //TODO: Read the request, collect the file, and send it to the client.
     sendFile(clientSock,firstLine);
   }
+  if (!strncmp(firstLine,"POST",4)) {
+    printf("POST request recieved!\n");
+  }
   free(request);
   free(firstLine);
 }
