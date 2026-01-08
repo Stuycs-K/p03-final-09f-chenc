@@ -13,3 +13,5 @@ Set up the "skeleton" of the program. Basically just set up the server socket cr
 Added the functionality of downloading files from the server. Along with that came an update to the testing page, which now has links to various files and a 404. Additionally, forking was added, so the server can handle more than one request at a time. Took ~1 hour, and still on schedule.
 
 ### 1/8/26
+
+Started adding the function to create files on the server. Implementend a test button, and the server does get the data.
