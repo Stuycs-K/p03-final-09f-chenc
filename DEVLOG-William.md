@@ -14,4 +14,4 @@ Added the functionality of downloading files from the server. Along with that ca
 
 ### 1/8/26
 
-Started adding the function to create files on the server. Implementend a test button, and the server does get the data. However, the functionality remains broken, as getting the content length and delimiter is proving harder than expected. Sets me a day behind schedule, but this will be rectified over the weekend.
+Started adding the function to create files on the server. Implemented a test button, and the server does get the data. However, the functionality remains broken, as getting the content length and delimiter is proving harder than expected. Sets me a day behind schedule, but this will be rectified over the weekend.

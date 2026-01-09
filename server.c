@@ -83,21 +83,17 @@ int sendFile(int clientSock, char * firstLine) {
   free(output);
 }
 int getFile(int clientSock, char * bytesRecieved) {
-   char * ptr = bytesRecieved;
-   printf("Got here!\n");
+  char * ptr = bytesRecieved;
+  printf("Got here!\n");
   while (1) {
-    if (!strncmp(ptr,"Content-Length",15)) break;
-    while (1) {
-      if (*ptr != "\n") ptr++;
-    }
-    printf("Ptr: %s\n", ptr);
+    if (!strncmp(ptr,"Content-Length",14)) break;
+    ptr++;
   }
-  printf("Got here 2!\n");
-  int fileSize;
-  sscanf(ptr,"Content-Length: %d\n", fileSize);
+  char * line;
+  sscanf(bytesRecieved,"%[^\n]", line);
+  
+  int fileSize = 0;
   printf("File Size: %d\n", fileSize);
-  printf("Recieved: %s\n", bytesRecieved);
-
 }
 int childBehavior(int clientSock) {
   char * request = (char *) malloc(1000000);
@@ -117,6 +113,7 @@ int childBehavior(int clientSock) {
 }
 int main() {
   int serverSock = makeServerSocket();
+  printf("Strlen: %d\n", strlen("Content-Length"));
   while (1) {
     int clientSock = makeClientSocket(serverSock);
       pid_t p;
