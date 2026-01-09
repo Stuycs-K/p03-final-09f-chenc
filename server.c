@@ -54,7 +54,6 @@ int sendFile(int clientSock, char * firstLine) {
   sscanf(firstLine,"GET %s", firstLine);
   int f, bytesToRead;
   struct stat stats;
-  printf("FirstLine: %s, size: %d\n", firstLine, strlen(firstLine));
   if (strlen(firstLine) == 1) {
     f = open("test.html", O_RDONLY, 0);
     stat("test.html",&stats);
@@ -89,11 +88,21 @@ int getFile(int clientSock, char * bytesRecieved) {
     if (!strncmp(ptr,"Content-Length",14)) break;
     ptr++;
   }
-  char * line;
-  sscanf(bytesRecieved,"%[^\n]", line);
-  
+  char * line = (char *) malloc(256);
+  sscanf(ptr,"%[^\n]", line);
   int fileSize = 0;
+  sscanf(line, "Content-Length: %d\n", &fileSize);
   printf("File Size: %d\n", fileSize);
+  ptr = bytesRecieved;
+  while (1) {
+    if (!strncmp(ptr,"boundary=",9)) break;
+    ptr++;
+  }
+  sscanf(ptr,"%[^\n]", line);
+  char * boundary = (char *) malloc(256);
+  sscanf(line, "boundary=%s\n", boundary);
+  printf("Boundary: %s\n", boundary);
+  
 }
 int childBehavior(int clientSock) {
   char * request = (char *) malloc(1000000);
