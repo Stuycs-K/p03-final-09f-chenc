@@ -87,7 +87,10 @@ int getFile(int clientSock, char * bytesRecieved) {
    printf("Got here!\n");
   while (1) {
     if (!strncmp(ptr,"Content-Length",15)) break;
-    ptr++;
+    while (1) {
+      if (*ptr != "\n") ptr++;
+    }
+    printf("Ptr: %s\n", ptr);
   }
   printf("Got here 2!\n");
   int fileSize;
