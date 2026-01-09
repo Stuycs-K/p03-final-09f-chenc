@@ -15,3 +15,7 @@ Added the functionality of downloading files from the server. Along with that ca
 ### 1/8/26
 
 Started adding the function to create files on the server. Implemented a test button, and the server does get the data. However, the functionality remains broken, as getting the content length and delimiter is proving harder than expected. Sets me a day behind schedule, but this will be rectified over the weekend.
+
+### 1/9/26
+
+Mostly just continued the work from yesterday on bring the files onto the server. It now sucessfully gets the file size, and the bounds. The next step is to actually read from these.
