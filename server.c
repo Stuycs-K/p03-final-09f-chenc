@@ -92,7 +92,7 @@ int getFile(int clientSock, char * bytesRecieved) {
   sscanf(ptr,"%[^\n]", line);
   int fileSize = 0;
   sscanf(line, "Content-Length: %d\n", &fileSize);
-  //printf("File Size: %d\n", fileSize);
+  printf("File Size: %d\n", fileSize);
   ptr = bytesRecieved;
   while (1) {
     if (!strncmp(ptr,"boundary=",9)) break;
@@ -113,10 +113,23 @@ int getFile(int clientSock, char * bytesRecieved) {
     if (!strncmp(ptr,boundary,strlen(boundary))) break;
     ptr++;
   }
-  printf("Data Block: %s\n", startData);
   char * fileName = malloc(256);
   sscanf(startData,"Content-Disposition: form-data; name=\"file\"; filename=\"%s\"",fileName);
-  printf("File Name: %s, strlen: %d\n", fileName, strlen(fileName));
+  int first = 0;
+  while (1) {
+    if (!strncmp(startData,"\n",1)) {
+      //printf("TRUE\n");
+      if (first == 2) break;
+      first++;
+    }
+    startData++;
+  }
+  startData++;
+  printf("Data Block: %s\n", startData);
+  fileName[strlen(fileName)-1] = NULL;
+  int newFile = open(fileName,O_CREAT|O_WRONLY,0600);
+  write(newFile,startData,fileSize);
+  free(fileName);
   free(line);
   free(boundary);
 }
