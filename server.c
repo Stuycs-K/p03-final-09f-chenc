@@ -81,6 +81,9 @@ int sendFile(int clientSock, char * firstLine) {
   free(outFile);
   free(output);
 }
+int saveFile(char * startBounds, char * endBounds) {
+  char * fileName = malloc(256);
+}
 int getFile(int clientSock, char * bytesRecieved) {
   char * ptr = bytesRecieved;
   printf("Got here!\n");
@@ -88,20 +91,21 @@ int getFile(int clientSock, char * bytesRecieved) {
     if (!strncmp(ptr,"Content-Length",14)) break;
     ptr++;
   }
-  char * line = "";
+  char * line = malloc(256);
   sscanf(ptr,"%[^\n]", line);
   int fileSize = 0;
   sscanf(line, "Content-Length: %d\n", &fileSize);
-  printf("File Size: %d\n", fileSize);
+  //printf("File Size: %d\n", fileSize);
   ptr = bytesRecieved;
   while (1) {
     if (!strncmp(ptr,"boundary=",9)) break;
     ptr++;
   }
   sscanf(ptr,"%[^\n]", line);
-  char * boundary = "";
+  char * boundary = malloc(256);
   sscanf(line, "boundary=%s\n", boundary);
-  printf("Boundary: %s\n", boundary);
+  //printf("Boundary: %s\n", boundary);
+  ptr += strlen(boundary);
   while (1) {
     if (!strncmp(ptr,boundary,strlen(boundary))) break;
     ptr++;
@@ -113,6 +117,8 @@ int getFile(int clientSock, char * bytesRecieved) {
   }
   char * endData = ptr;
   printf("Data Block: %s\n", startData);
+  free(line);
+  free(boundary);
 }
 int childBehavior(int clientSock) {
   char * request = (char *) malloc(1000000);
