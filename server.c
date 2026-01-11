@@ -90,9 +90,15 @@ void updateHomePage() {
   DIR * currentDir;
   currentDir = opendir(".");
   struct dirent * currentFile;
+  struct stat stats;
   while (currentFile = readdir(currentDir)) {
-    printf("Name: %s\n", currentFile->d_name);
-    printf("Name: %s\n", currentFile->d_type);
+    stat(currentFile->d_name,&stats);
+    #ifdef _DIRENT_HAVE_D_TYPE
+    if (currentFile->d_type == DT_REG) {
+      printf("Name: %s\n", currentFile->d_name);
+    }
+    #endif
+    if (S_ISREG(stats.st_mode)) printf("Name: %s\n", currentFile->d_name);
   }
 }
 void getFile(int clientSock, char * bytesRecieved) {
