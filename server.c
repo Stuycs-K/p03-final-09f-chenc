@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 #include <sys/stat.h>
+#include <dirent.h>
 #define PORT "38203"
 void err() {
   printf("Error: %s\n", strerror(errno));
@@ -86,6 +87,13 @@ void updateHomePage() {
   char * end = "<!body>\n<!html>";
   int homePage = open("test.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
   write(homePage,start,strlen(start));
+  DIR * currentDir;
+  currentDir = opendir(".");
+  struct dirent * currentFile;
+  while (currentFile = readdir(currentDir)) {
+    printf("Name: %s\n", currentFile->d_name);
+    printf("Name: %s\n", currentFile->d_type);
+  }
 }
 void getFile(int clientSock, char * bytesRecieved) {
   char * ptr = bytesRecieved;
