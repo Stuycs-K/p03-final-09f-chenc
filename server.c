@@ -84,8 +84,8 @@ void sendFile(int clientSock, char * firstLine) {
 }
 void updateHomePage() {
   char * start = "<!doctype html>\n<html>\n<body>\n";
-  char * end = "<!body>\n<!html>";
-  int homePage = open("test.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
+  char * end = "</body>\n</html>";
+  int homePage = open("homePage.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
   write(homePage,start,strlen(start));
   DIR * currentDir;
   currentDir = opendir(".");
@@ -159,6 +159,9 @@ void getFile(int clientSock, char * bytesRecieved) {
   //printf("%p, %p\n", endData, startData);
   write(newFile,startData,endData-startData);
   updateHomePage();
+  strcpy(line,"HTTP/1.1 200 OK\n\nasdf");
+  send(clientSock,line,strlen(line),0);
+  printf("Went okay!\n");
   free(fileName);
   free(line);
   free(boundary);
