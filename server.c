@@ -83,7 +83,7 @@ void sendFile(int clientSock, char * firstLine) {
   free(output);
 }
 void updateHomePage() {
-  char * start = "<!doctype html>\n<html>\n<body>";
+  char * start = "<!doctype html>\n<html>\n<body>\n";
   char * end = "<!body>\n<!html>";
   int homePage = open("test.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
   write(homePage,start,strlen(start));
@@ -91,15 +91,27 @@ void updateHomePage() {
   currentDir = opendir(".");
   struct dirent * currentFile;
   struct stat stats;
+  char * line = malloc(534);
   while (currentFile = readdir(currentDir)) {
     stat(currentFile->d_name,&stats);
     #ifdef _DIRENT_HAVE_D_TYPE
     if (currentFile->d_type == DT_REG) {
-      printf("Name: %s\n", currentFile->d_name);
+      sprintf(line,"<p><a href=\"%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
+      printf("Like: %s\n", line);
+      write(homePage,line,strlen(line));
+      continue;
     }
     #endif
-    if (S_ISREG(stats.st_mode)) printf("Name: %s\n", currentFile->d_name);
+    if (S_ISREG(stats.st_mode)) {
+      printf("Name: %s\n", currentFile->d_name);
+      sprintf(line,"<p><a href=\"%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
+      printf("Like: %s\n", line);
+      write(homePage,line,strlen(line));
+      continue;
+    }
   }
+  write(homePage,end,strlen(end));
+  free(line);
 }
 void getFile(int clientSock, char * bytesRecieved) {
   char * ptr = bytesRecieved;
