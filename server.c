@@ -83,7 +83,7 @@ int sendFile(int clientSock, char * firstLine) {
 }
 int getFile(int clientSock, char * bytesRecieved) {
   char * ptr = bytesRecieved;
-  printf("Got here!\n");
+  //printf("Got here!\n");
   ptr = bytesRecieved;
   while (1) {
     if (!strncmp(ptr,"boundary=",9)) break;
@@ -93,7 +93,7 @@ int getFile(int clientSock, char * bytesRecieved) {
   sscanf(ptr,"%[^\n]", line);
   char * boundary = malloc(256);
   sscanf(line, "boundary=%s\n", boundary);
-  printf("Boundary: %s\n", boundary);
+  // printf("Boundary: %s\n", boundary);
   ptr += strlen(boundary);
   while (1) {
     if (!strncmp(ptr,boundary,strlen(boundary))) break;
@@ -109,8 +109,8 @@ int getFile(int clientSock, char * bytesRecieved) {
   char * endData = ptr;
   endData -= 4;
   char * fileName = malloc(256);
-  sscanf(startData,"Content-Disposition: form-data; name=\"file\"; filename=\"%s\"",fileName);
-  printf("fileName: %s\n", fileName);
+  sscanf(startData,"Content-Disposition: form-data; name=\"file\"; filename=\"%[^\"]",fileName);
+  //printf("fileName: %s\n", fileName);
   int first = 0;
   while (1) {
     if (!strncmp(startData,"\n",1)) {
@@ -121,11 +121,10 @@ int getFile(int clientSock, char * bytesRecieved) {
     startData++;
   }
   startData++;
-  printf("Start: %s\n", startData);
-  printf("End: %s\n", endData);
-  fileName[strlen(fileName)-1] = NULL;
+  //printf("Start: %s\n", startData);
+  //printf("End: %s\n", endData);
   int newFile = open(fileName,O_CREAT|O_WRONLY|O_TRUNC,0600);
-  printf("%p, %p\n", endData, startData);
+  //printf("%p, %p\n", endData, startData);
   write(newFile,startData,endData-startData);
   free(fileName);
   free(line);
