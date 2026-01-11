@@ -81,9 +81,6 @@ int sendFile(int clientSock, char * firstLine) {
   free(outFile);
   free(output);
 }
-int saveFile(char * startBounds, char * endBounds) {
-  char * fileName = malloc(256);
-}
 int getFile(int clientSock, char * bytesRecieved) {
   char * ptr = bytesRecieved;
   printf("Got here!\n");
@@ -111,12 +108,15 @@ int getFile(int clientSock, char * bytesRecieved) {
     ptr++;
   }
   char * startData = ptr;
+  startData += strlen(boundary)+2;
   while (1) {
     if (!strncmp(ptr,boundary,strlen(boundary))) break;
     ptr++;
   }
-  char * endData = ptr;
   printf("Data Block: %s\n", startData);
+  char * fileName = malloc(256);
+  sscanf(startData,"Content-Disposition: form-data; name=\"file\"; filename=\"%s\"",fileName);
+  printf("File Name: %s, strlen: %d\n", fileName, strlen(fileName));
   free(line);
   free(boundary);
 }
