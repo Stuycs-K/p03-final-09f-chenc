@@ -23,3 +23,7 @@ Mostly just continued the work from yesterday on bring the files onto the server
 ### 1/10/26
 
 Finally completed the file upload process. This included reading the file name, file delimiter, and actually calculating the file size correctly (ironically, the Content-Length tag is the length of the **entire** message body, not just the file). I am quite behind schedule now, but I am confident that I can get a MVP by Monday.
+
+### 1/11/26
+
+Completed the dynamic homepage, though it might need some CSS (will wait until after MVP to do that). The server now reads what in the current directory, differentiates between file and directory, and makes each of these it's own HTML tag. I am now back on schedule, as I have my MVP. 
