@@ -45,18 +45,18 @@ int makeClientSocket(int serverSock) {
   printf("Connection Success!\n");
   return clientSock;
 }
-int send404(int clientSock) {
+void send404(int clientSock) {
   char * header = "HTTP/1.1 404 Not Found\n\n";
   send(clientSock,header,strlen(header),0);
   exit(1);
 }
-int sendFile(int clientSock, char * firstLine) {
+void sendFile(int clientSock, char * firstLine) {
   sscanf(firstLine,"GET %s", firstLine);
   int f, bytesToRead;
   struct stat stats;
   if (strlen(firstLine) == 1) {
-    f = open("test.html", O_RDONLY, 0);
-    stat("test.html",&stats);
+    f = open("homePage.html", O_RDONLY, 0);
+    stat("homePage.html",&stats);
   } else {
     f = open(firstLine+1, O_RDONLY, 0);
     if (errno != 0) send404(clientSock);
@@ -81,7 +81,13 @@ int sendFile(int clientSock, char * firstLine) {
   free(outFile);
   free(output);
 }
-int getFile(int clientSock, char * bytesRecieved) {
+void updateHomePage() {
+  char * start = "<!doctype html>\n<html>\n<body>";
+  char * end = "<!body>\n<!html>";
+  int homePage = open("test.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
+  write(homePage,start,strlen(start));
+}
+void getFile(int clientSock, char * bytesRecieved) {
   char * ptr = bytesRecieved;
   //printf("Got here!\n");
   ptr = bytesRecieved;
@@ -126,11 +132,12 @@ int getFile(int clientSock, char * bytesRecieved) {
   int newFile = open(fileName,O_CREAT|O_WRONLY|O_TRUNC,0600);
   //printf("%p, %p\n", endData, startData);
   write(newFile,startData,endData-startData);
+  updateHomePage();
   free(fileName);
   free(line);
   free(boundary);
 }
-int childBehavior(int clientSock) {
+void childBehavior(int clientSock) {
   char * request = (char *) malloc(1000000);
   int bytesGot = recv(clientSock,request,1000000,0);
   if (bytesGot == -1) err();
