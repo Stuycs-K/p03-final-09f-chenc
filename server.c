@@ -69,6 +69,8 @@ void updateHomePage() {
       //printf("Like: %s\n", line);
       write(homePage,line,strlen(line));
       continue;
+    } else if (currentFile->d_type == DT_DIR) {
+      sprintf(line,"<p><a href=\"%s\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);
     }
     #endif
     if (S_ISREG(stats.st_mode)) {
@@ -77,6 +79,11 @@ void updateHomePage() {
       //printf("Like: %s\n", line);
       write(homePage,line,strlen(line));
       continue;
+    } else if (S_ISDIR(stats.st_mode)) {
+      //printf("Name: %s\n", currentFile->d_name);
+      sprintf(line,"<p><a href=\"%s\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);
+      //printf("Like: %s\n", line);
+      write(homePage,line,strlen(line));
     }
   }
   write(homePage,end,strlen(end));
@@ -96,7 +103,7 @@ void sendFile(int clientSock, char * firstLine) {
       char * end = (char *) malloc(6);
       strncpy(end, firstLine + strlen(firstLine) - 4, 4);
       if (!strcmp(end,"html")) isHTML = 1;
-      printf("End: %s\n", end);
+      //printf("End: %s\n", end);
       free(end);
     }
     f = open(firstLine+1, O_RDONLY, 0);
