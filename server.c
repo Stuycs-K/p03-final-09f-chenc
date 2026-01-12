@@ -84,13 +84,21 @@ void updateHomePage() {
 }
 void sendFile(int clientSock, char * firstLine) {
   sscanf(firstLine,"GET %s", firstLine);
-  int f, bytesToRead;
+  int f, bytesToRead, isHTML;
+  isHTML = 0;
   struct stat stats;
   if (strlen(firstLine) == 1) {
     updateHomePage();
     f = open("homePage.html", O_RDONLY, 0);
     stat("homePage.html",&stats);
   } else {
+    if (strlen(firstLine) >= 6) {
+      char * end = (char *) malloc(6);
+      strncpy(end, firstLine + strlen(firstLine) - 4, 4);
+      if (!strcmp(end,"html")) isHTML = 1;
+      printf("End: %s\n", end);
+      free(end);
+    }
     f = open(firstLine+1, O_RDONLY, 0);
     if (errno != 0) send404(clientSock);
     stat(firstLine+1,&stats);
@@ -99,7 +107,7 @@ void sendFile(int clientSock, char * firstLine) {
   void * outFile = malloc(bytesToRead+1);
   int readAmount = read(f,outFile,bytesToRead);
   char * header;
-  if (strlen(firstLine) == 1) {
+  if (strlen(firstLine) == 1 || isHTML) {
     header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
   } else {
     header = (char *) malloc(256);
