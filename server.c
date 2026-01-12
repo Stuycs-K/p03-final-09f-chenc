@@ -66,7 +66,7 @@ void updateHomePage() {
     #ifdef _DIRENT_HAVE_D_TYPE
     if (currentFile->d_type == DT_REG) {
       sprintf(line,"<p><a href=\"%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
-      printf("Like: %s\n", line);
+      //printf("Like: %s\n", line);
       write(homePage,line,strlen(line));
       continue;
     }
@@ -74,7 +74,7 @@ void updateHomePage() {
     if (S_ISREG(stats.st_mode)) {
       printf("Name: %s\n", currentFile->d_name);
       sprintf(line,"<p><a href=\"%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
-      printf("Like: %s\n", line);
+      //printf("Like: %s\n", line);
       write(homePage,line,strlen(line));
       continue;
     }
@@ -162,7 +162,7 @@ void getFile(int clientSock, char * bytesRecieved) {
   updateHomePage();
   strcpy(line,"HTTP/1.1 202 Accepted\n\nasdf");
   send(clientSock,line,strlen(line),0);
-  printf("Went okay!\n");
+  //printf("Went okay!\n");
   free(fileName);
   free(line);
   free(boundary);
