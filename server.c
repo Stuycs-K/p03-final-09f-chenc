@@ -51,8 +51,7 @@ void send404(int clientSock) {
   send(clientSock,header,strlen(header),0);
   exit(1);
 }
-void updateHomePage(char * path) {
-  chdir(path);
+void updateHomePage() {
   char * start = "<!doctype html>\n<html>\n<body><h1>Current Files:</h1>\n";
   char * end = "<form method=\"post\" enctype=\"multipart/form-data\">\n<input name=\"file\" type=\"file\" /><button> Send Request </button>\n</form>\n<p>After uploading, reload the page for changes.</p>\n</body>\n</html>";
   int homePage = open("homePage.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
@@ -61,7 +60,7 @@ void updateHomePage(char * path) {
   currentDir = opendir(".");
   struct dirent * currentFile;
   struct stat stats;
-  char * line = malloc(600);
+  char * line = malloc(534);
   while (currentFile = readdir(currentDir)) {
     stat(currentFile->d_name,&stats);
     #ifdef _DIRENT_HAVE_D_TYPE
@@ -71,20 +70,18 @@ void updateHomePage(char * path) {
       write(homePage,line,strlen(line));
       continue;
     } else if (currentFile->d_type == DT_DIR) {
-      sprintf(line,"<p><a href=\"DIR:%s\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);
+      sprintf(line,"<p><a href=\"/dir/%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
+      continue;
     }
     #endif
     if (S_ISREG(stats.st_mode)) {
-      //printf("Name: %s\n", currentFile->d_name);
+      printf("Name: %s\n", currentFile->d_name);
       sprintf(line,"<p><a href=\"%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
-      //printf("Line: %s\n", line);
+      //printf("Like: %s\n", line);
       write(homePage,line,strlen(line));
       continue;
-    } else if (S_ISDIR(stats.st_mode)) {
-      //printf("Name: %s\n", currentFile->d_name);
-      sprintf(line,"<p><a href=\"/dir/%s\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);
-      //printf("Line: %s\n", line);
-      write(homePage,line,strlen(line));
+    } else if (S_ISDIR(stats.st_mode)){
+      sprintf(line,"<p><a href=\"%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
     }
   }
   write(homePage,end,strlen(end));
@@ -95,9 +92,8 @@ void sendFile(int clientSock, char * firstLine) {
   int f, bytesToRead, isHTML;
   isHTML = 0;
   struct stat stats;
-  printf("First Line: %s\n", firstLine);
   if (strlen(firstLine) == 1) {
-    updateHomePage("");
+    updateHomePage();
     f = open("homePage.html", O_RDONLY, 0);
     stat("homePage.html",&stats);
   } else {
@@ -105,15 +101,15 @@ void sendFile(int clientSock, char * firstLine) {
       char * end = (char *) malloc(6);
       strncpy(end, firstLine + strlen(firstLine) - 4, 4);
       if (!strcmp(end,"html")) isHTML = 1;
-      //printf("End: %s\n", end);
+      printf("End: %s\n", end);
       free(end);
     }
-    // if (strlen(firstLine) >= 4 && !strncmp(firstLine,"/dir",4)) {
-    //   printf("Clicked on directory!\n");
-    //   char * path = (char *) malloc(100);
-    //   strncpy(path,firstLine + 3,100);
-    //   printf("Path: %s\n", path);
-    // }
+    if (strlen(firstLine) >= 4 && !strncmp(firstLine,"/dir",4)) {
+      printf("Clicked on directory!\n");
+      char * path = (char *) malloc(100);
+      strncpy(path,firstLine + 3,100);
+      printf("Path: %s\n", path);
+    }
     f = open(firstLine+1, O_RDONLY, 0);
     if (errno != 0) send404(clientSock);
     stat(firstLine+1,&stats);
@@ -133,7 +129,7 @@ void sendFile(int clientSock, char * firstLine) {
   memcpy(output+strlen(header),outFile,readAmount);
   int amountSent = send(clientSock,output,readAmount+strlen(header)+1,0);
   printf("Amount Sent: %d\n", amountSent);
-  if (strlen(firstLine) != 1 && !isHTML) free(header);
+  if (strlen(firstLine) != 1) free(header);
   free(outFile);
   free(output);
 }
@@ -182,7 +178,7 @@ void getFile(int clientSock, char * bytesRecieved) {
   int newFile = open(fileName,O_CREAT|O_WRONLY|O_TRUNC,0600);
   //printf("%p, %p\n", endData, startData);
   write(newFile,startData,endData-startData);
-  updateHomePage("");
+  updateHomePage();
   strcpy(line,"HTTP/1.1 202 Accepted\n\nasdf");
   send(clientSock,line,strlen(line),0);
   //printf("Went okay!\n");
