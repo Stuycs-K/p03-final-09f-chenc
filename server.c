@@ -66,7 +66,7 @@ void updateHomePage(char * path) {
     stat(currentFile->d_name,&stats);
     #ifdef _DIRENT_HAVE_D_TYPE
     if (currentFile->d_type == DT_REG) {
-      sprintf(line,"<p><a href=\"DIR:%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
+      sprintf(line,"<p><a href=\"%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
       //printf("Like: %s\n", line);
       write(homePage,line,strlen(line));
       continue;
@@ -76,7 +76,7 @@ void updateHomePage(char * path) {
     #endif
     if (S_ISREG(stats.st_mode)) {
       //printf("Name: %s\n", currentFile->d_name);
-      sprintf(line,"<p><a href=\"/dir/%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
+      sprintf(line,"<p><a href=\"%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
       //printf("Line: %s\n", line);
       write(homePage,line,strlen(line));
       continue;
@@ -95,7 +95,7 @@ void sendFile(int clientSock, char * firstLine) {
   int f, bytesToRead, isHTML;
   isHTML = 0;
   struct stat stats;
-  printf("Got somethin\n");
+  printf("First Line: %s\n", firstLine);
   if (strlen(firstLine) == 1) {
     updateHomePage("");
     f = open("homePage.html", O_RDONLY, 0);
@@ -108,11 +108,12 @@ void sendFile(int clientSock, char * firstLine) {
       //printf("End: %s\n", end);
       free(end);
     }
-    if (strlen(firstLine) >= 4 && !strncmp(firstLine,"dir",3)) {
-      printf("Clicked on directory!\n");
-      char * path = (char *) malloc(100);
-      
-    }
+    // if (strlen(firstLine) >= 4 && !strncmp(firstLine,"/dir",4)) {
+    //   printf("Clicked on directory!\n");
+    //   char * path = (char *) malloc(100);
+    //   strncpy(path,firstLine + 3,100);
+    //   printf("Path: %s\n", path);
+    // }
     f = open(firstLine+1, O_RDONLY, 0);
     if (errno != 0) send404(clientSock);
     stat(firstLine+1,&stats);
