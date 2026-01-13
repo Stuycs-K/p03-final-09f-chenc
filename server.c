@@ -51,7 +51,8 @@ void send404(int clientSock) {
   send(clientSock,header,strlen(header),0);
   exit(1);
 }
-void updateHomePage() {
+void updateHomePage(char * path) {
+  chdir(path);
   char * start = "<!doctype html>\n<html>\n<body><h1>Current Files:</h1>\n";
   char * end = "<form method=\"post\" enctype=\"multipart/form-data\">\n<input name=\"file\" type=\"file\" /><button> Send Request </button>\n</form>\n<p>After uploading, reload the page for changes.</p>\n</body>\n</html>";
   int homePage = open("homePage.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
@@ -60,29 +61,29 @@ void updateHomePage() {
   currentDir = opendir(".");
   struct dirent * currentFile;
   struct stat stats;
-  char * line = malloc(534);
+  char * line = malloc(600);
   while (currentFile = readdir(currentDir)) {
     stat(currentFile->d_name,&stats);
     #ifdef _DIRENT_HAVE_D_TYPE
     if (currentFile->d_type == DT_REG) {
-      sprintf(line,"<p><a href=\"%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
+      sprintf(line,"<p><a href=\"DIR:%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
       //printf("Like: %s\n", line);
       write(homePage,line,strlen(line));
       continue;
     } else if (currentFile->d_type == DT_DIR) {
-      sprintf(line,"<p><a href=\"%s\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);
+      sprintf(line,"<p><a href=\"DIR:%s\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);
     }
     #endif
     if (S_ISREG(stats.st_mode)) {
-      printf("Name: %s\n", currentFile->d_name);
-      sprintf(line,"<p><a href=\"%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
-      //printf("Like: %s\n", line);
+      //printf("Name: %s\n", currentFile->d_name);
+      sprintf(line,"<p><a href=\"/dir/%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
+      //printf("Line: %s\n", line);
       write(homePage,line,strlen(line));
       continue;
     } else if (S_ISDIR(stats.st_mode)) {
       //printf("Name: %s\n", currentFile->d_name);
-      sprintf(line,"<p><a href=\"%s\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);
-      //printf("Like: %s\n", line);
+      sprintf(line,"<p><a href=\"/dir/%s\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);
+      //printf("Line: %s\n", line);
       write(homePage,line,strlen(line));
     }
   }
@@ -94,8 +95,9 @@ void sendFile(int clientSock, char * firstLine) {
   int f, bytesToRead, isHTML;
   isHTML = 0;
   struct stat stats;
+  printf("Got somethin\n");
   if (strlen(firstLine) == 1) {
-    updateHomePage();
+    updateHomePage("");
     f = open("homePage.html", O_RDONLY, 0);
     stat("homePage.html",&stats);
   } else {
@@ -105,6 +107,11 @@ void sendFile(int clientSock, char * firstLine) {
       if (!strcmp(end,"html")) isHTML = 1;
       //printf("End: %s\n", end);
       free(end);
+    }
+    if (strlen(firstLine) >= 4 && !strncmp(firstLine,"dir",3)) {
+      printf("Clicked on directory!\n");
+      char * path = (char *) malloc(100);
+      
     }
     f = open(firstLine+1, O_RDONLY, 0);
     if (errno != 0) send404(clientSock);
@@ -125,7 +132,7 @@ void sendFile(int clientSock, char * firstLine) {
   memcpy(output+strlen(header),outFile,readAmount);
   int amountSent = send(clientSock,output,readAmount+strlen(header)+1,0);
   printf("Amount Sent: %d\n", amountSent);
-  if (strlen(firstLine) != 1) free(header);
+  if (strlen(firstLine) != 1 && !isHTML) free(header);
   free(outFile);
   free(output);
 }
@@ -174,7 +181,7 @@ void getFile(int clientSock, char * bytesRecieved) {
   int newFile = open(fileName,O_CREAT|O_WRONLY|O_TRUNC,0600);
   //printf("%p, %p\n", endData, startData);
   write(newFile,startData,endData-startData);
-  updateHomePage();
+  updateHomePage("");
   strcpy(line,"HTTP/1.1 202 Accepted\n\nasdf");
   send(clientSock,line,strlen(line),0);
   //printf("Went okay!\n");

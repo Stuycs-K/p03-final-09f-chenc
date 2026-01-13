@@ -27,3 +27,7 @@ Finally completed the file upload process. This included reading the file name, 
 ### 1/11/26
 
 Completed the dynamic homepage, though it might need some CSS (will wait until after MVP to do that). The server now reads what in the current directory, differentiates between file and directory, and makes each of these it's own HTML tag. I am now back on schedule, as I have my MVP. 
+
+### 1/12/26
+
+Started work on supporting changing directories. The code now displays directories on the home page.
