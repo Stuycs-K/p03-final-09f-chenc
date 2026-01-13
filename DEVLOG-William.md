@@ -30,4 +30,4 @@ Completed the dynamic homepage, though it might need some CSS (will wait until a
 
 ### 1/12/26
 
-Started work on supporting changing directories. The code now displays directories on the home page.
+Started work on supporting changing directories. The code now displays directories on the home page and redirects the executable to be in a different path, though something broke along the way and I have yet to find it.
