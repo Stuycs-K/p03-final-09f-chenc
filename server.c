@@ -51,10 +51,15 @@ void send404(int clientSock) {
   send(clientSock,header,strlen(header),0);
   exit(1);
 }
-void updateHomePage() {
+void updateHomePage(char * fileName, char * path) {
   char * start = "<!doctype html>\n<html>\n<body><h1>Current Files:</h1>\n";
   char * end = "<form method=\"post\" enctype=\"multipart/form-data\">\n<input name=\"file\" type=\"file\" /><button> Send Request </button>\n</form>\n<p>After uploading, reload the page for changes.</p>\n</body>\n</html>";
-  int homePage = open("homePage.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
+  int homePage;
+  if (strlen(fileName) == 0) {
+    homePage = open("homePage.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
+  } else {
+    homePage = open(fileName,O_WRONLY|O_CREAT|O_TRUNC,0600);
+  }
   write(homePage,start,strlen(start));
   DIR * currentDir;
   currentDir = opendir(".");
@@ -95,7 +100,7 @@ void sendFile(int clientSock, char * firstLine) {
   isHTML = 0;
   struct stat stats;
   if (strlen(firstLine) == 1) {
-    updateHomePage();
+    updateHomePage("","");
     f = open("homePage.html", O_RDONLY, 0);
     stat("homePage.html",&stats);
   } else {
@@ -110,6 +115,9 @@ void sendFile(int clientSock, char * firstLine) {
       printf("Clicked on directory!\n");
       char * path = (char *) malloc(100);
       sscanf(firstLine, "/dir/'%[^']'", path);
+      
+      // updateHomePage(firstLine,path);
+      // free(path);
       printf("Path: %s\n", path);
     }
     f = open(firstLine+1, O_RDONLY, 0);
@@ -180,7 +188,7 @@ void getFile(int clientSock, char * bytesRecieved) {
   int newFile = open(fileName,O_CREAT|O_WRONLY|O_TRUNC,0600);
   //printf("%p, %p\n", endData, startData);
   write(newFile,startData,endData-startData);
-  updateHomePage();
+  updateHomePage("","");
   strcpy(line,"HTTP/1.1 202 Accepted\n\nasdf");
   send(clientSock,line,strlen(line),0);
   //printf("Went okay!\n");
