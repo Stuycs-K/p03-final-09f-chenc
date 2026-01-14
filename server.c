@@ -66,7 +66,7 @@ void updateHomePage(char * fileName, char * path) {
   printf("PATH: %s, Length: %d\n", path, strlen(path));
   struct dirent * currentFile;
   struct stat stats;
-  char * line = malloc(1000);
+  char * line = calloc(1000,1);
   while (currentFile = readdir(currentDir)) {
     stat(currentFile->d_name,&stats);
     #ifdef _DIRENT_HAVE_D_TYPE
@@ -82,9 +82,9 @@ void updateHomePage(char * fileName, char * path) {
     } else if (currentFile->d_type == DT_DIR) {
       if (strlen(path) != 0) {
         //printf("THIS RUNS!\n");
-        sprintf(line,"<p><a href=\"/dir/'/%s/%s'\">Directory: %s</a></p>\n", path, currentFile->d_name, currentFile->d_name);  
+        sprintf(line,"<p><a href=\"/dir/'/%s/%s'\">Directory: %s</a></p>\n", path, currentFile->d_name, currentFile->d_name);
       } else {
-        sprintf(line,"<p><a href=\"/dir/'%s'\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);  
+        sprintf(line,"<p><a href=\"/dir/'%s'\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);
       }
       write(homePage,line,strlen(line));
       continue;
@@ -92,7 +92,7 @@ void updateHomePage(char * fileName, char * path) {
     #endif
     if (S_ISREG(stats.st_mode)) {
       if (strlen(path) != 0) {
-        //printf("THIS RUNS!\n");
+        printf("THIS RUNS!\n");
         sprintf(line,"<p><a href=\"/%s/%s\">%s</a></p>\n", path,currentFile->d_name, currentFile->d_name);
       } else {
         sprintf(line,"<p><a href=\"%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
@@ -101,10 +101,10 @@ void updateHomePage(char * fileName, char * path) {
       continue;
     } else if (S_ISDIR(stats.st_mode)){
       if (strlen(path) != 0) {
-        //printf("THIS RUNS!\n");
-        sprintf(line,"<p><a href=\"/dir/'/%s/%s'\">Directory: %s</a></p>\n", path, currentFile->d_name, currentFile->d_name);  
+        printf("THIS RUNS!\n");
+        sprintf(line,"<p><a href=\"/dir/'/%s/%s'\">Directory: %s</a></p>\n", path, currentFile->d_name, currentFile->d_name);
       } else {
-        sprintf(line,"<p><a href=\"/dir/'%s'\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);  
+        sprintf(line,"<p><a href=\"/dir/'%s'\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);
       }
       write(homePage,line,strlen(line));
     }
@@ -120,7 +120,7 @@ void sendFile(int clientSock, char * firstLine) {
   int createdFile = 0;
   struct stat stats;
   char * fileName = (char *) malloc(125);
-  printf("FirstLine: %s\n", firstLine);
+  //printf("FirstLine: %s\n", firstLine);
   if (strlen(firstLine) == 1) {
     updateHomePage("",".");
     f = open("homePage.html", O_RDONLY, 0);
@@ -135,18 +135,19 @@ void sendFile(int clientSock, char * firstLine) {
     }
     if (strlen(firstLine) >= 4 && !strncmp(firstLine,"/dir/",5)) {
       createdFile++;
-      printf("firstLine: %s\n", firstLine);
+      //printf("firstLine: %s\n", firstLine);
       char * path = (char *) malloc(100);
       sscanf(firstLine, "/dir/'/%[^']", path);
-      printf("Path: %s\n", path);
+      printf("Path: %s, Length: %d\n", path, strlen(path));
       sprintf(fileName,"Temp Dir %s .html", path);
-      if (!strcmp(".",path)) {
+      if (!strcmp(".",path) && strlen(path) == 1) {
         createdFile = 0;
         strcpy(fileName,"");
       }
       printf("File Name: %s\n", fileName);
       updateHomePage(fileName,path);
       f = open(fileName, O_RDONLY, 0);
+      if (errno != 0) err();
       stat(fileName,&stats);
       isHTML = 1;
       free(path);
@@ -174,7 +175,7 @@ void sendFile(int clientSock, char * firstLine) {
   free(header);
   free(outFile);
   free(output);
-  if (createdFile) remove(fileName);
+  //if (createdFile) remove(fileName);
   free(fileName);
 }
 void getFile(int clientSock, char * bytesRecieved) {
