@@ -63,31 +63,49 @@ void updateHomePage(char * fileName, char * path) {
   write(homePage,start,strlen(start));
   DIR * currentDir;
   currentDir = opendir(path);
+  printf("PATH: %s, Length: %d\n", path, strlen(path));
   struct dirent * currentFile;
   struct stat stats;
-  char * line = malloc(600);
+  char * line = malloc(1000);
   while (currentFile = readdir(currentDir)) {
     stat(currentFile->d_name,&stats);
     #ifdef _DIRENT_HAVE_D_TYPE
     if (currentFile->d_type == DT_REG) {
-      sprintf(line,"<p><a href=\"%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
-      //printf("Like: %s\n", line);
+      if (strlen(path) != 0) {
+        //printf("THIS RUNS!\n");
+        sprintf(line,"<p><a href=\"\\%s\\%s\">%s</a></p>\n", path,currentFile->d_name, currentFile->d_name);
+      } else {
+        sprintf(line,"<p><a href=\"%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
+      }
       write(homePage,line,strlen(line));
       continue;
     } else if (currentFile->d_type == DT_DIR) {
-      sprintf(line,"<p><a href=\"/dir/'%s'\">Directory:%s</a></p>\n", currentFile->d_name, currentFile->d_name);
+      if (strlen(path) != 0) {
+        //printf("THIS RUNS!\n");
+        sprintf(line,"<p><a href=\"/dir/'%s'\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);  
+      } else {
+        sprintf(line,"<p><a href=\"/dir/'%s'\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);  
+      }
       write(homePage,line,strlen(line));
       continue;
     }
     #endif
     if (S_ISREG(stats.st_mode)) {
-      //printf("Name: %s\n", currentFile->d_name);
-      sprintf(line,"<p><a href=\"%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
-      //printf("Like: %s\n", line);
+      if (strlen(path) != 0) {
+        //printf("THIS RUNS!\n");
+        sprintf(line,"<p><a href=\"\\%s\\%s\">%s</a></p>\n", path,currentFile->d_name, currentFile->d_name);
+      } else {
+        sprintf(line,"<p><a href=\"%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
+      }
       write(homePage,line,strlen(line));
       continue;
     } else if (S_ISDIR(stats.st_mode)){
-      sprintf(line,"<p><a href=\"/dir/'%s'\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);
+      if (strlen(path) != 0) {
+        //printf("THIS RUNS!\n");
+        sprintf(line,"<p><a href=\"/dir/'%s'\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);  
+      } else {
+        sprintf(line,"<p><a href=\"/dir/'%s'\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);  
+      }
       write(homePage,line,strlen(line));
     }
   }
@@ -113,13 +131,13 @@ void sendFile(int clientSock, char * firstLine) {
       free(end);
     }
     if (strlen(firstLine) >= 4 && !strncmp(firstLine,"/dir",4)) {
-      printf("Clicked on directory!\n");
+      //printf("Clicked on directory!\n");
       char * path = (char *) malloc(100);
       sscanf(firstLine, "/dir/'%[^']'", path);
-      char * fileName = (char *) malloc(125);
-      sprintf(fileName,"dirContent %s .html", path);
-      printf("File Name: %s\n", fileName);
       printf("Path: %s\n", path);
+      char * fileName = (char *) malloc(125);
+      sprintf(fileName,"Temp Dir %s .html", path);
+      if (!strcmp(".",path)) strcpy(fileName,"");
       updateHomePage(fileName,path);
       f = open(fileName, O_RDONLY, 0);
       stat(fileName,&stats);
@@ -231,3 +249,4 @@ int main() {
       }
   }
 }
+//NOTE TO SELF: valgrind --track-origins=yes --dsymutil=yes ./server
