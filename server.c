@@ -62,10 +62,10 @@ void updateHomePage(char * fileName, char * path) {
   }
   write(homePage,start,strlen(start));
   DIR * currentDir;
-  currentDir = opendir(".");
+  currentDir = opendir(path);
   struct dirent * currentFile;
   struct stat stats;
-  char * line = malloc(534);
+  char * line = malloc(600);
   while (currentFile = readdir(currentDir)) {
     stat(currentFile->d_name,&stats);
     #ifdef _DIRENT_HAVE_D_TYPE
@@ -100,7 +100,7 @@ void sendFile(int clientSock, char * firstLine) {
   isHTML = 0;
   struct stat stats;
   if (strlen(firstLine) == 1) {
-    updateHomePage("","");
+    updateHomePage("",".");
     f = open("homePage.html", O_RDONLY, 0);
     stat("homePage.html",&stats);
   } else {
@@ -115,10 +115,13 @@ void sendFile(int clientSock, char * firstLine) {
       printf("Clicked on directory!\n");
       char * path = (char *) malloc(100);
       sscanf(firstLine, "/dir/'%[^']'", path);
-      
-      // updateHomePage(firstLine,path);
-      // free(path);
+      char * fileName = (char *) malloc(125);
+      sprintf(fileName,"dirContent %s .html", path);
+      printf("File Name: %s\n", fileName);
       printf("Path: %s\n", path);
+      updateHomePage(fileName,path);
+      free(path);
+      free(fileName);
     }
     f = open(firstLine+1, O_RDONLY, 0);
     if (errno != 0) send404(clientSock);
@@ -188,7 +191,6 @@ void getFile(int clientSock, char * bytesRecieved) {
   int newFile = open(fileName,O_CREAT|O_WRONLY|O_TRUNC,0600);
   //printf("%p, %p\n", endData, startData);
   write(newFile,startData,endData-startData);
-  updateHomePage("","");
   strcpy(line,"HTTP/1.1 202 Accepted\n\nasdf");
   send(clientSock,line,strlen(line),0);
   //printf("Went okay!\n");
