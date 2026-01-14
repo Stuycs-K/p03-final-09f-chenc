@@ -122,6 +122,7 @@ void sendFile(int clientSock, char * firstLine) {
       printf("Path: %s\n", path);
       updateHomePage(fileName,path);
       f = open(fileName, O_RDONLY, 0);
+      stat(fileName,&stats);
       isHTML = 1;
       free(path);
       free(fileName);
@@ -132,13 +133,13 @@ void sendFile(int clientSock, char * firstLine) {
     }
   }
   bytesToRead = stats.st_size;
-  void * outFile = malloc(bytesToRead+1);
+  printf("Bytes: %d\n", bytesToRead);
+  void * outFile = malloc(bytesToRead);
   int readAmount = read(f,outFile,bytesToRead);
-  char * header;
+  char * header = (char *) malloc(256);
   if (strlen(firstLine) == 1 || isHTML) {
-    header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
+    strcpy(header,"HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n");
   } else {
-    header = (char *) malloc(256);
     sprintf(header, "HTTP/1.1 200 OK\nContent-Type: application/octet-stream;\nContent-Disposition: attachment;\nContent-Length: %d\n\n",readAmount);
   }
   void * output = malloc(readAmount+strlen(header)+1);
@@ -146,8 +147,7 @@ void sendFile(int clientSock, char * firstLine) {
   memcpy(output+strlen(header),outFile,readAmount);
   int amountSent = send(clientSock,output,readAmount+strlen(header),0);
   printf("Amount Sent: %d\n", amountSent);
-  if (strlen(firstLine) != 1) free(header);
-  close(f);
+  free(header);
   free(outFile);
   free(output);
 }
