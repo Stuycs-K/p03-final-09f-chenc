@@ -124,11 +124,21 @@ void sendFile(int clientSock, char * firstLine) {
 }
 void getFile(int clientSock, char * bytesRecieved) {
   char * ptr = bytesRecieved;
-  char * firstLine = (char *) malloc(256);
-  sscanf(bytesRecieved,"POST %s HTTP", firstLine);
-  printf("firstLine: %s\n", firstLine);
-  //printf("Got here!\n");
-  ptr = bytesRecieved;
+  char * path = (char *) malloc(256);
+  sscanf(bytesRecieved,"POST %s HTTP", path);
+  printf("path: %s\n", path);
+  if (!strncmp("/remove/", path, 8)) {
+    sscanf(path, "/remove/%s",path);
+    printf("path: %s\n", path);
+    remove(path);
+    free(path);
+    char * line = malloc(256);
+    strcpy(line,"HTTP/1.1 202 Accepted\n\n");
+    send(clientSock,line,strlen(line),0);
+    free(line);
+    return;
+  }
+  free(path);
   while (1) {
     if (!strncmp(ptr,"boundary=",9)) break;
     ptr++;
@@ -172,7 +182,7 @@ void getFile(int clientSock, char * bytesRecieved) {
   //printf("%p, %p\n", endData, startData);
   write(newFile,startData,endData-startData);
   updateHomePage();
-  strcpy(line,"HTTP/1.1 202 Accepted\n\nasdf");
+  strcpy(line,"HTTP/1.1 202 Accepted\n\n");
   send(clientSock,line,strlen(line),0);
   //printf("Went okay!\n");
   free(fileName);
