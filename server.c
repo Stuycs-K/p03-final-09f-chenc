@@ -97,6 +97,7 @@ void updateHomePage(char * fileName, char * path) {
 void sendFile(int clientSock, char * firstLine) {
   sscanf(firstLine,"GET %s", firstLine);
   int f, bytesToRead, isHTML;
+  bytesToRead = 0;
   isHTML = 0;
   struct stat stats;
   if (strlen(firstLine) == 1) {
@@ -120,12 +121,15 @@ void sendFile(int clientSock, char * firstLine) {
       printf("File Name: %s\n", fileName);
       printf("Path: %s\n", path);
       updateHomePage(fileName,path);
+      f = open(fileName, O_RDONLY, 0);
+      isHTML = 1;
       free(path);
       free(fileName);
+    } else {
+      f = open(firstLine+1, O_RDONLY, 0);
+      if (errno != 0) send404(clientSock);
+      stat(firstLine+1,&stats);
     }
-    f = open(firstLine+1, O_RDONLY, 0);
-    if (errno != 0) send404(clientSock);
-    stat(firstLine+1,&stats);
   }
   bytesToRead = stats.st_size;
   void * outFile = malloc(bytesToRead+1);
@@ -140,9 +144,10 @@ void sendFile(int clientSock, char * firstLine) {
   void * output = malloc(readAmount+strlen(header)+1);
   memcpy(output,header,strlen(header));
   memcpy(output+strlen(header),outFile,readAmount);
-  int amountSent = send(clientSock,output,readAmount+strlen(header)+1,0);
+  int amountSent = send(clientSock,output,readAmount+strlen(header),0);
   printf("Amount Sent: %d\n", amountSent);
   if (strlen(firstLine) != 1) free(header);
+  close(f);
   free(outFile);
   free(output);
 }
