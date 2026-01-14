@@ -131,6 +131,7 @@ void getFile(int clientSock, char * bytesRecieved) {
     ptr++;
   }
   char * line = malloc(256);
+  //printf("Request: %s\n", line);
   sscanf(ptr,"%[^\n]", line);
   char * boundary = malloc(256);
   sscanf(line, "boundary=%s\n", boundary);
@@ -181,6 +182,7 @@ void childBehavior(int clientSock) {
   if (bytesGot == -1) err();
   char * firstLine = (char *) malloc(128);
   sscanf(request,"%[^\n]", firstLine);
+  printf("First Line: %s\n", firstLine);
   if (!strncmp(firstLine,"GET",3)) {
     sendFile(clientSock,firstLine);
   }
