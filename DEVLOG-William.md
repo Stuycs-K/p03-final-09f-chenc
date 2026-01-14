@@ -27,3 +27,11 @@ Finally completed the file upload process. This included reading the file name, 
 ### 1/11/26
 
 Completed the dynamic homepage, though it might need some CSS (will wait until after MVP to do that). The server now reads what in the current directory, differentiates between file and directory, and makes each of these it's own HTML tag. I am now back on schedule, as I have my MVP. 
+
+### 1/12/26
+
+Started work on supporting changing directories. The code now displays directories on the home page and redirects the executable to be in a different path, though something broke along the way and I have yet to find it.
+
+### 1/13/26
+
+Worked mainly on changing directories, though I might transition to working on deleting files instead. This is because it seems like moving from directory to directory is gong to be harder than I expected, as the browser seems to truncate and change requests automatically. For that, I would probably need to make drastic changes to my forking server, which I don't really want to do right now.
