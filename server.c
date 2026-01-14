@@ -124,6 +124,9 @@ void sendFile(int clientSock, char * firstLine) {
 }
 void getFile(int clientSock, char * bytesRecieved) {
   char * ptr = bytesRecieved;
+  char * firstLine = (char *) malloc(256);
+  sscanf(bytesRecieved,"POST %s HTTP", firstLine);
+  printf("firstLine: %s\n", firstLine);
   //printf("Got here!\n");
   ptr = bytesRecieved;
   while (1) {
@@ -182,7 +185,6 @@ void childBehavior(int clientSock) {
   if (bytesGot == -1) err();
   char * firstLine = (char *) malloc(128);
   sscanf(request,"%[^\n]", firstLine);
-  printf("First Line: %s\n", firstLine);
   if (!strncmp(firstLine,"GET",3)) {
     sendFile(clientSock,firstLine);
   }
