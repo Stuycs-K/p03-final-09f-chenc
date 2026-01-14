@@ -120,6 +120,7 @@ void sendFile(int clientSock, char * firstLine) {
   int createdFile = 0;
   struct stat stats;
   char * fileName = (char *) malloc(125);
+  printf("FirstLine: %s\n", firstLine);
   if (strlen(firstLine) == 1) {
     updateHomePage("",".");
     f = open("homePage.html", O_RDONLY, 0);
@@ -134,8 +135,9 @@ void sendFile(int clientSock, char * firstLine) {
     }
     if (strlen(firstLine) >= 4 && !strncmp(firstLine,"/dir/",5)) {
       createdFile++;
+      printf("firstLine: %s\n", firstLine);
       char * path = (char *) malloc(100);
-      sscanf(firstLine, "/dir/'/%[^']'", path);
+      sscanf(firstLine, "/dir/'/%[^']", path);
       printf("Path: %s\n", path);
       sprintf(fileName,"Temp Dir %s .html", path);
       if (!strcmp(".",path)) {
