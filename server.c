@@ -52,8 +52,8 @@ void send404(int clientSock) {
   exit(1);
 }
 void updateHomePage() {
-  char * start = "<!doctype html>\n<html>\n<head><meta charset =\"UTF-8\"><link rel=\"stylesheet\" href=\"/homePage.css\" /><!head>\n<body><div class=\"wholePage\"><h1>Welcome, User!</h1>\n";
-  char * end = "<form method=\"post\" enctype=\"multipart/form-data\">\n<input name=\"file\" type=\"file\" /><button> Send Request </button>\n</form>\n<p>After uploading, reload the page for changes.</p>\n<!div></body>\n</html>";
+  char * start = "<!doctype html>\n<html>\n<head><meta charset =\"UTF-8\"><link rel=\"stylesheet\" href=\"/homePage.css\" /><!head>\n<body><h1>Welcome, User!</h1>\n";
+  char * end = "<form method=\"post\" enctype=\"multipart/form-data\">\n<input name=\"file\" type=\"file\" /><button> Send Request </button>\n</form>\n<p>After uploading, reload the page for changes.</p>\n</body>\n</html>";
   int homePage = open("homePage.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
   write(homePage,start,strlen(start));
   DIR * currentDir;
@@ -118,7 +118,7 @@ void sendFile(int clientSock, char * firstLine) {
   int readAmount = read(f,outFile,bytesToRead);
   char * header;
   if (strlen(firstLine) == 1 || isHTML) {
-    header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nCache-Control: max-age=604800\n\n";
+    header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
   } else if (isCSS) {
     header = "HTTP/1.1 200 OK\nContent-Type: text/css; charset=UTF-8\n\n";
   } else {
@@ -128,9 +128,9 @@ void sendFile(int clientSock, char * firstLine) {
   void * output = malloc(readAmount+strlen(header)+1);
   memcpy(output,header,strlen(header));
   memcpy(output+strlen(header),outFile,readAmount);
-  int amountSent = send(clientSock,output,readAmount+strlen(header),0);
+  int amountSent = send(clientSock,output,readAmount+strlen(header)+1,0);
   printf("Amount Sent: %d\n", amountSent);
-  //if (strlen(firstLine) != 1 || isHTML || isCSS) free(header);
+  if (strlen(firstLine) != 1 || isHTML || isCSS) free(header);
   free(outFile);
   free(output);
 }
