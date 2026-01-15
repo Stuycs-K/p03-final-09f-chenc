@@ -109,6 +109,7 @@ void sendFile(int clientSock, char * firstLine) {
   char * header;
   if (strlen(firstLine) == 1 || isHTML) {
     header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
+    printf("DIS RAN!\n");
   } else {
     header = (char *) malloc(256);
     sprintf(header, "HTTP/1.1 200 OK\nContent-Type: application/octet-stream;\nContent-Disposition: attachment;\nContent-Length: %d\n\n",readAmount);
@@ -133,7 +134,7 @@ void getFile(int clientSock, char * bytesRecieved) {
     remove(path);
     free(path);
     char * line = malloc(256);
-    strcpy(line,"HTTP/1.1 202 Accepted\n\n");
+    strcpy(line,"HTTP/1.1 204 No Content\n\n ");
     send(clientSock,line,strlen(line),0);
     free(line);
     return;
@@ -182,7 +183,7 @@ void getFile(int clientSock, char * bytesRecieved) {
   //printf("%p, %p\n", endData, startData);
   write(newFile,startData,endData-startData);
   updateHomePage();
-  strcpy(line,"HTTP/1.1 202 Accepted\n\n");
+  strcpy(line,"HTTP/1.1 204 No Content\n\n ");
   send(clientSock,line,strlen(line),0);
   //printf("Went okay!\n");
   free(fileName);
