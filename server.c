@@ -52,7 +52,7 @@ void send404(int clientSock) {
   exit(1);
 }
 void updateHomePage() {
-  char * start = "<!doctype html>\n<html>\n<body><h1>Current Files:</h1>\n";
+  char * start = "<!doctype html>\n<html>\n<head><link rel=\"stylesheet\" href=\"homePage.css\"><!head>\n<body><h1>Welcome, User!</h1>\n";
   char * end = "<form method=\"post\" enctype=\"multipart/form-data\">\n<input name=\"file\" type=\"file\" /><button> Send Request </button>\n</form>\n<p>After uploading, reload the page for changes.</p>\n</body>\n</html>";
   int homePage = open("homePage.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
   write(homePage,start,strlen(start));
