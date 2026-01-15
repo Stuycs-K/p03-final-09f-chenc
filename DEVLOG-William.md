@@ -37,3 +37,5 @@ Started work on supporting changing directories. The code now displays directori
 Worked mainly on changing directories, though I might transition to working on deleting files instead. This is because it seems like moving from directory to directory is gong to be harder than I expected, as the browser seems to truncate and change requests automatically. For that, I would probably need to make drastic changes to my forking server, which I don't really want to do right now.
 
 ### 1/14/26
+
+I added the functionality to delete files, but I didn't place the links to it either (it works, it's just I don't know what form factor it should be in). Additionally, I worked somewhat on changing the directory, though it just doesn't work. Thirdly, I added CSS, though it isn't finished yet.

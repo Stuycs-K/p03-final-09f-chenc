@@ -1,6 +1,6 @@
 body {
   margin: 25px;
-  background-color: rgb(130,240,240);
+  background-color: rgb(14,14,14);
   font-family: arial, sans-serif;
   font-size: 14px;
 }
@@ -16,8 +16,5 @@ h1 {
   margin:5%;
   background-color: green;
   justify-content: center;
-  left: 50%;
-  top: 50%;
-  position: absolute;
-  transform: translate(-50%, -50%);
+  justify-items: center;
 }
