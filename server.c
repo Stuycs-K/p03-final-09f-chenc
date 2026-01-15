@@ -65,7 +65,7 @@ void updateHomePage() {
     stat(currentFile->d_name,&stats);
     #ifdef _DIRENT_HAVE_D_TYPE
     if (currentFile->d_type == DT_REG) {
-      sprintf(line,"<p><a href=\"%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
+      sprintf(line,"<p>%s <a href=\"%s\">Download<!a> <a href=\"/remove/%s\">Delete</a></p>\n", currentFile->d_name, currentFile->d_name, currentFile->d_name);
       //printf("Like: %s\n", line);
       write(homePage,line,strlen(line));
       continue;
@@ -73,7 +73,7 @@ void updateHomePage() {
     #endif
     if (S_ISREG(stats.st_mode)) {
       printf("Name: %s\n", currentFile->d_name);
-      sprintf(line,"<p><a href=\"%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
+      sprintf(line,"<p>%s <a href=\"%s\">Download<!a> <a href=\"/remove/%s\">Delete</a></p>\n", currentFile->d_name, currentFile->d_name, currentFile->d_name);
       //printf("Like: %s\n", line);
       write(homePage,line,strlen(line));
       continue;
@@ -139,6 +139,7 @@ void getFile(int clientSock, char * bytesRecieved) {
   char * path = (char *) malloc(256);
   sscanf(bytesRecieved,"POST %s HTTP", path);
   printf("path: %s\n", path);
+  printf("Diff: %d\n", strncmp("/remove/", path, 8));
   if (!strncmp("/remove/", path, 8)) {
     sscanf(path, "/remove/%s",path);
     printf("path: %s\n", path);
