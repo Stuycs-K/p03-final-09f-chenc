@@ -83,6 +83,7 @@ void updateHomePage() {
   free(line);
 }
 void sendFile(int clientSock, char * firstLine) {
+  printf("Request: %s\n", firstLine);
   sscanf(firstLine,"GET %s", firstLine);
   int f, bytesToRead, isHTML;
   isHTML = 0;
@@ -95,7 +96,8 @@ void sendFile(int clientSock, char * firstLine) {
     if (strlen(firstLine) >= 6) {
       char * end = (char *) malloc(6);
       strncpy(end, firstLine + strlen(firstLine) - 4, 4);
-      if (!strcmp(end,"html")) isHTML = 1;
+      printf("Diff: %d\n", strcmp(end,"html"));
+      if (end[0] == 'h' && end[1] == 't' && end[2] == 'm' && end[3] == 'l') isHTML = 1;
       printf("End: %s\n", end);
       free(end);
     }
@@ -109,7 +111,6 @@ void sendFile(int clientSock, char * firstLine) {
   char * header;
   if (strlen(firstLine) == 1 || isHTML) {
     header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
-    printf("DIS RAN!\n");
   } else {
     header = (char *) malloc(256);
     sprintf(header, "HTTP/1.1 200 OK\nContent-Type: application/octet-stream;\nContent-Disposition: attachment;\nContent-Length: %d\n\n",readAmount);
