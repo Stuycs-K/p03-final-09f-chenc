@@ -82,9 +82,23 @@ void updateHomePage() {
   write(homePage,end,strlen(end));
   free(line);
 }
+void removeFile(int clientSock, char * path) {
+  sscanf(path, "/remove/%s",path);
+  printf("path: %s\n", path);
+  remove(path);
+  free(path);
+  char * line = malloc(256);
+  strcpy(line,"HTTP/1.1 204 No Content\n\n ");
+  send(clientSock,line,strlen(line),0);
+  free(line);
+}
 void sendFile(int clientSock, char * firstLine) {
   printf("Request: %s\n", firstLine);
   sscanf(firstLine,"GET %s", firstLine);
+  if (!strncmp("/remove/", firstLine, 8)) {
+    removeFile(clientSock, firstLine);
+    return;
+  }
   int f, bytesToRead, isHTML, isCSS;
   isHTML = 0;
   isCSS = 0;
@@ -141,14 +155,7 @@ void getFile(int clientSock, char * bytesRecieved) {
   printf("path: %s\n", path);
   printf("Diff: %d\n", strncmp("/remove/", path, 8));
   if (!strncmp("/remove/", path, 8)) {
-    sscanf(path, "/remove/%s",path);
-    printf("path: %s\n", path);
-    remove(path);
-    free(path);
-    char * line = malloc(256);
-    strcpy(line,"HTTP/1.1 204 No Content\n\n ");
-    send(clientSock,line,strlen(line),0);
-    free(line);
+    removeFile(clientSock, path);
     return;
   }
   free(path);

@@ -26,7 +26,7 @@ Finally completed the file upload process. This included reading the file name, 
 
 ### 1/11/26
 
-Completed the dynamic homepage, though it might need some CSS (will wait until after MVP to do that). The server now reads what in the current directory, differentiates between file and directory, and makes each of these it's own HTML tag. I am now back on schedule, as I have my MVP. 
+Completed the dynamic homepage, though it might need some CSS (will wait until after MVP to do that). The server now reads what in the current directory, differentiates between file and directory, and makes each of these it's own HTML tag. I am now back on schedule, as I have my MVP.
 
 ### 1/12/26
 
@@ -39,3 +39,7 @@ Worked mainly on changing directories, though I might transition to working on d
 ### 1/14/26
 
 I added the functionality to delete files, but I didn't place the links to it either (it works, it's just I don't know what form factor it should be in). Additionally, I worked somewhat on changing the directory, though it just doesn't work. Thirdly, I added CSS, though it isn't finished yet.
+
+### 1/15/26
+
+Added download and delete options for each file. Eventually, I'll turn it into images, but not now. I got a lot of work to do.
