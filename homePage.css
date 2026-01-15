@@ -2,7 +2,6 @@ body {
   margin: 25px;
   background-color: rgb(14,14,14);
   font-family: arial, sans-serif;
-  font-size: 14px;
 }
 
 /* Applies to all <h1>...</h1> elements. */
@@ -14,7 +13,7 @@ h1 {
 }
 .wholePage {
   margin:5%;
-  background-color: green;
+  background-color: black;
   justify-content: center;
   justify-items: center;
 }

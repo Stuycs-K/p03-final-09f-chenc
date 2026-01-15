@@ -118,7 +118,7 @@ void sendFile(int clientSock, char * firstLine) {
   int readAmount = read(f,outFile,bytesToRead);
   char * header;
   if (strlen(firstLine) == 1 || isHTML) {
-    header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
+    header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nCache-Control: max-age=604800\n\n";
   } else if (isCSS) {
     header = "HTTP/1.1 200 OK\nContent-Type: text/css; charset=UTF-8\n\n";
   } else {
@@ -130,7 +130,7 @@ void sendFile(int clientSock, char * firstLine) {
   memcpy(output+strlen(header),outFile,readAmount);
   int amountSent = send(clientSock,output,readAmount+strlen(header),0);
   printf("Amount Sent: %d\n", amountSent);
-  if (strlen(firstLine) != 1 || isHTML || isCSS) free(header);
+  //if (strlen(firstLine) != 1 || isHTML || isCSS) free(header);
   free(outFile);
   free(output);
 }
