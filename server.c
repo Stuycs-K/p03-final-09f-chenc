@@ -31,7 +31,7 @@ int makeServerSocket() {
   struct sockaddr_in *sockAddr;
   sockAddr = (struct sockaddr_in *)serverInfo->ai_addr;
   inet_ntop(serverInfo->ai_family, &(sockAddr->sin_addr),serverIP, 128);
-  printf("Server Address: %s:%s\n", serverIP, PORT);
+  //printf("Server Address: %s:%s\n", serverIP, PORT);
   listen(serverSock,10);
   freeaddrinfo(hints);
   freeaddrinfo(serverInfo);
@@ -60,7 +60,7 @@ void updateHomePage() {
   currentDir = opendir(".");
   struct dirent * currentFile;
   struct stat stats;
-  char * line = malloc(534);
+  char * line = malloc(1000);
   while (currentFile = readdir(currentDir)) {
     stat(currentFile->d_name,&stats);
     #ifdef _DIRENT_HAVE_D_TYPE
@@ -72,7 +72,7 @@ void updateHomePage() {
     }
     #endif
     if (S_ISREG(stats.st_mode)) {
-      printf("Name: %s\n", currentFile->d_name);
+      //printf("Name: %s\n", currentFile->d_name);
       sprintf(line,"<p>%s <a href=\"%s\">Download<!a> <a href=\"/remove/%s\">Delete</a></p>\n", currentFile->d_name, currentFile->d_name, currentFile->d_name);
       //printf("Like: %s\n", line);
       write(homePage,line,strlen(line));
@@ -84,7 +84,7 @@ void updateHomePage() {
 }
 void removeFile(int clientSock, char * path) {
   sscanf(path, "/remove/%s",path);
-  printf("path: %s\n", path);
+  //printf("path: %s\n", path);
   remove(path);
   free(path);
   char * line = malloc(256);
@@ -93,7 +93,7 @@ void removeFile(int clientSock, char * path) {
   free(line);
 }
 void sendFile(int clientSock, char * firstLine) {
-  printf("Request: %s\n", firstLine);
+  //printf("Request: %s\n", firstLine);
   sscanf(firstLine,"GET %s", firstLine);
   if (!strncmp("/remove/", firstLine, 8)) {
     removeFile(clientSock, firstLine);
@@ -113,13 +113,13 @@ void sendFile(int clientSock, char * firstLine) {
       strncpy(end, firstLine + strlen(firstLine) - 4, 4);
       //printf("Diff: %d\n", strcmp(end,"html"));
       if (end[0] == 'h' && end[1] == 't' && end[2] == 'm' && end[3] == 'l') isHTML = 1;
-      printf("End: %s\n", end);
+      //printf("End: %s\n", end);
       free(end);
     }
     if (strlen(firstLine) >= 4) {
       char * end = (char *) malloc(6);
       strncpy(end, firstLine + strlen(firstLine) - 3, 3);
-      printf("End: %s\n", end);
+      //printf("End: %s\n", end);
       if (end[0] == 'c' && end[1] == 's' && end[2] == 's') isCSS = 1;
       free(end);
     }
@@ -130,13 +130,12 @@ void sendFile(int clientSock, char * firstLine) {
   bytesToRead = stats.st_size;
   void * outFile = malloc(bytesToRead+1);
   int readAmount = read(f,outFile,bytesToRead);
-  char * header;
+  char * header = malloc(1024);
   if (strlen(firstLine) == 1 || isHTML) {
-    header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
+    strcpy(header,"HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n");
   } else if (isCSS) {
-    header = "HTTP/1.1 200 OK\nContent-Type: text/css; charset=UTF-8\n\n";
+    strcpy(header,"HTTP/1.1 200 OK\nContent-Type: text/css; charset=UTF-8\n\n");
   } else {
-    header = (char *) malloc(256);
     sprintf(header, "HTTP/1.1 200 OK\nContent-Type: application/octet-stream;\nContent-Disposition: attachment;\nContent-Length: %d\n\n",readAmount);
   }
   void * output = malloc(readAmount+strlen(header)+1);
@@ -152,8 +151,8 @@ void getFile(int clientSock, char * bytesRecieved) {
   char * ptr = bytesRecieved;
   char * path = (char *) malloc(256);
   sscanf(bytesRecieved,"POST %s HTTP", path);
-  printf("path: %s\n", path);
-  printf("Diff: %d\n", strncmp("/remove/", path, 8));
+  //printf("path: %s\n", path);
+  //printf("Diff: %d\n", strncmp("/remove/", path, 8));
   if (!strncmp("/remove/", path, 8)) {
     removeFile(clientSock, path);
     return;
@@ -223,6 +222,7 @@ void childBehavior(int clientSock) {
   }
   free(request);
   free(firstLine);
+  exit(0);
 }
 int main() {
   int serverSock = makeServerSocket();
