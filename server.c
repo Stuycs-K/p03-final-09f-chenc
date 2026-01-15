@@ -60,6 +60,11 @@ void updateHomePage(char * fileName, char * path) {
   } else {
     homePage = open(fileName,O_WRONLY|O_CREAT|O_TRUNC,0600);
   }
+  for (int i = 0; i < strlen(path); i++) {
+    if (path[i] == ' ') path[i] = '/';
+  }
+  printf("In updateHomePage now\n");
+  if (errno) err();
   write(homePage,start,strlen(start));
   DIR * currentDir;
   currentDir = opendir(path);
@@ -73,7 +78,7 @@ void updateHomePage(char * fileName, char * path) {
     if (currentFile->d_type == DT_REG) {
       if (strlen(path) != 0) {
         //printf("THIS RUNS!\n");
-        sprintf(line,"<p><a href=\"/%s/%s\">%s</a></p>\n", path,currentFile->d_name, currentFile->d_name);
+        sprintf(line,"<p><a href=\"'/%s/%s'\">%s</a></p>\n", path,currentFile->d_name, currentFile->d_name);
       } else {
         sprintf(line,"<p><a href=\"%s\">%s</a></p>\n", currentFile->d_name, currentFile->d_name);
       }
@@ -82,7 +87,7 @@ void updateHomePage(char * fileName, char * path) {
     } else if (currentFile->d_type == DT_DIR) {
       if (strlen(path) != 0) {
         //printf("THIS RUNS!\n");
-        sprintf(line,"<p><a href=\"/dir/'/%s/%s'\">Directory: %s</a></p>\n", path, currentFile->d_name, currentFile->d_name);
+        sprintf(line,"<p><a href=\"/dir/'%s/%s'\">Directory: %s</a></p>\n", path, currentFile->d_name, currentFile->d_name);
       } else {
         sprintf(line,"<p><a href=\"/dir/'%s'\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);
       }
@@ -102,7 +107,7 @@ void updateHomePage(char * fileName, char * path) {
     } else if (S_ISDIR(stats.st_mode)){
       if (strlen(path) != 0) {
         printf("THIS RUNS!\n");
-        sprintf(line,"<p><a href=\"/dir/'/%s/%s'\">Directory: %s</a></p>\n", path, currentFile->d_name, currentFile->d_name);
+        sprintf(line,"<p><a href=\"/dir/%s/%s\">Directory: %s</a></p>\n", path, currentFile->d_name, currentFile->d_name);
       } else {
         sprintf(line,"<p><a href=\"/dir/'%s'\">Directory: %s</a></p>\n", currentFile->d_name, currentFile->d_name);
       }
@@ -137,15 +142,19 @@ void sendFile(int clientSock, char * firstLine) {
       createdFile++;
       //printf("firstLine: %s\n", firstLine);
       char * path = (char *) malloc(100);
-      sscanf(firstLine, "/dir/'/%[^']", path);
+      sscanf(firstLine, "/dir/'%[^']'", path);
+      for (int i = 0; i < strlen(path); i++) {
+        if (path[i] == '/') path[i] = ' ';
+      }
       printf("Path: %s, Length: %d\n", path, strlen(path));
       sprintf(fileName,"Temp Dir %s .html", path);
-      if (!strcmp(".",path) && strlen(path) == 1) {
+      if (strlen(path) == 1 && path[0] == '.') {
         createdFile = 0;
         strcpy(fileName,"");
       }
       printf("File Name: %s\n", fileName);
       updateHomePage(fileName,path);
+      printf("Out of update\n");
       f = open(fileName, O_RDONLY, 0);
       if (errno != 0) err();
       stat(fileName,&stats);
