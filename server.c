@@ -52,7 +52,7 @@ void send404(int clientSock) {
   exit(1);
 }
 void updateHomePage() {
-  char * start = "<!doctype html>\n<html>\n<head><meta charset =\"UTF-8\"><link rel=\"stylesheet\" href=\"CSS/homePage.css\" /><!head>\n<body><h1>Welcome, User!</h1>\n";
+  char * start = "<!doctype html>\n<html>\n<head><meta charset =\"UTF-8\"><link rel=\"stylesheet\" href=\"/homePage.css\" /><!head>\n<body><h1>Welcome, User!</h1>\n";
   char * end = "<form method=\"post\" enctype=\"multipart/form-data\">\n<input name=\"file\" type=\"file\" /><button> Send Request </button>\n</form>\n<p>After uploading, reload the page for changes.</p>\n</body>\n</html>";
   int homePage = open("homePage.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
   write(homePage,start,strlen(start));
@@ -85,8 +85,9 @@ void updateHomePage() {
 void sendFile(int clientSock, char * firstLine) {
   printf("Request: %s\n", firstLine);
   sscanf(firstLine,"GET %s", firstLine);
-  int f, bytesToRead, isHTML;
+  int f, bytesToRead, isHTML, isCSS;
   isHTML = 0;
+  isCSS = 0;
   struct stat stats;
   if (strlen(firstLine) == 1) {
     updateHomePage();
@@ -96,9 +97,16 @@ void sendFile(int clientSock, char * firstLine) {
     if (strlen(firstLine) >= 6) {
       char * end = (char *) malloc(6);
       strncpy(end, firstLine + strlen(firstLine) - 4, 4);
-      printf("Diff: %d\n", strcmp(end,"html"));
+      //printf("Diff: %d\n", strcmp(end,"html"));
       if (end[0] == 'h' && end[1] == 't' && end[2] == 'm' && end[3] == 'l') isHTML = 1;
       printf("End: %s\n", end);
+      free(end);
+    }
+    if (strlen(firstLine) >= 4) {
+      char * end = (char *) malloc(6);
+      strncpy(end, firstLine + strlen(firstLine) - 3, 3);
+      printf("End: %s\n", end);
+      if (end[0] == 'c' && end[1] == 's' && end[2] == 's') isCSS = 1;
       free(end);
     }
     f = open(firstLine+1, O_RDONLY, 0);
@@ -111,6 +119,8 @@ void sendFile(int clientSock, char * firstLine) {
   char * header;
   if (strlen(firstLine) == 1 || isHTML) {
     header = "HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n";
+  } else if (isCSS) {
+    header = "HTTP/1.1 200 OK\nContent-Type: text/css; charset=UTF-8\n\n";
   } else {
     header = (char *) malloc(256);
     sprintf(header, "HTTP/1.1 200 OK\nContent-Type: application/octet-stream;\nContent-Disposition: attachment;\nContent-Length: %d\n\n",readAmount);
@@ -120,7 +130,7 @@ void sendFile(int clientSock, char * firstLine) {
   memcpy(output+strlen(header),outFile,readAmount);
   int amountSent = send(clientSock,output,readAmount+strlen(header)+1,0);
   printf("Amount Sent: %d\n", amountSent);
-  if (strlen(firstLine) != 1) free(header);
+  if (strlen(firstLine) != 1 || isHTML || isCSS) free(header);
   free(outFile);
   free(output);
 }
