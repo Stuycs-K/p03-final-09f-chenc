@@ -10,4 +10,14 @@ h1 {
   font-size: 35px;
   font-weight: normal;
   margin-top: 5px;
+  color:orange;
+}
+.wholePage {
+  margin:5%;
+  background-color: green;
+  justify-content: center;
+  left: 50%;
+  top: 50%;
+  position: absolute;
+  transform: translate(-50%, -50%);
 }
