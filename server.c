@@ -52,7 +52,7 @@ void send404(int clientSock) {
   exit(1);
 }
 void updateHomePage() {
-  char * start = "<!doctype html>\n<html>\n<head><meta charset =\"UTF-8\"><link rel=\"stylesheet\" href=\"/homePage.css\" /><!head>\n<body><h1>Welcome, User!</h1>\n";
+  char * start = "<!doctype html>\n<html>\n<head><meta charset =\"UTF-8\"><link rel=\"stylesheet\" href=\"/Data/homePage.css\" /><!head>\n<body><h1>Welcome, User!</h1>\n";
   char * end = "<form method=\"post\" enctype=\"multipart/form-data\">\n<input name=\"file\" type=\"file\"/><button> Send Request </button>\n</form>\n<p>After uploading, reload the page for changes.</p>\n</body>\n</html>";
   int homePage = open("homePage.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
   write(homePage,start,strlen(start));
@@ -63,7 +63,6 @@ void updateHomePage() {
   struct stat stats;
   int lineNum = 1;
   char * line = malloc(5000);
-  char * unit = malloc(25);
   while (currentFile = readdir(currentDir)) {
     stat(currentFile->d_name,&stats);
     if (S_ISREG(stats.st_mode)) {
@@ -75,25 +74,28 @@ void updateHomePage() {
       //printf("End: %s\n", end);
       free(end);
     }
-    if (stats.st_size < 100) {
-      strcpy(unit,"Bytes");
-    } else if (stats.st_size < 100000){
-      strcpy(unit,"KB");
-    } else {
-      strcpy(unit,"MB");
-    }
     if (isHTML) {
-        sprintf(line,"<p>%d. <a href=\"%s\">%s</a> (File Size: %.0lf %s) <a href=\"/Download/%s\"><img src=\"download.png\" alt=\"Download File\"></a> <a href=\"/remove/%s\"><img src=\"Delete.png\" alt=\"Delete File\"></a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, stats.st_size * 1.0, unit, currentFile->d_name, currentFile->d_name);
+      if (stats.st_size < 100) {
+        sprintf(line,"<p>%d. <a href=\"%s\">%s</a> (File Size: %.0lf Bytes) <a href=\"/Download/%s\" title=\"Download File\"><img src=\"/Data/download.png\" alt=\"Download\"></a> <a href=\"/remove/%s\" title=\"Remove File\"><img src=\"/Data/Delete.png\" alt=\"Delete File\"></a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, stats.st_size * 1.0,currentFile->d_name, currentFile->d_name);
+      } else if (stats.st_size < 100000) {
+        sprintf(line,"<p>%d. <a href=\"%s\">%s</a> (File Size: %.2lf KB) <a href=\"/Download/%s\" title=\"Download File\"><img src=\"/Data/download.png\" alt=\"Download\"></a> <a href=\"/remove/%s\" title=\"Remove File\"><img src=\"/Data/Delete.png\" alt=\"Delete File\" /></a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, stats.st_size * 0.001,currentFile->d_name, currentFile->d_name);
+      } else {
+        sprintf(line,"<p>%d. <a href=\"%s\">%s</a> (File Size: %.2lf MB) <a href=\"/Download/%s\" title=\"Download File\"><img src=\"/Data/download.png\" alt=\"Download\"></a> <a href=\"/remove/%s\" title=\"Remove File\"><img src=\"/Data/Delete.png\" alt=\"Delete File\" /></a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, stats.st_size * 0.000001,currentFile->d_name, currentFile->d_name);
+      }
     } else {
-        sprintf(line,"<p>%d. %s (File Size: %.0lf %s) <a href=\"%s\"><img src=\"download.png\" alt=\"Download\" title=\"Download\"></a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, stats.st_size * 1.0, unit, currentFile->d_name, currentFile->d_name);
+      if (stats.st_size < 100) {
+        sprintf(line,"<p>%d. %s (File Size: %.0lf Bytes) <a href=\"%s\" title=\"Download File\"><img src=\"/Data/download.png\" alt=\"Download\"></a> <a href=\"/remove/%s\" title=\"Remove File\"><img src=\"/Data/Delete.png\" alt=\"Delete File\"></a></p>\n", lineNum, currentFile->d_name, stats.st_size * 1.0,currentFile->d_name, currentFile->d_name);
+      } else if (stats.st_size < 100000) {
+        sprintf(line,"<p>%d. %s (File Size: %.2lf KB) <a href=\"%s\" title=\"Download File\"><img src=\"/Data/download.png\" alt=\"Download\"></a> <a href=\"/remove/%s\" title=\"Remove File\"><img src=\"/Data/Delete.png\" alt=\"Delete File\"></a></p>\n", lineNum, currentFile->d_name, stats.st_size * 0.001,currentFile->d_name, currentFile->d_name);
+      } else {
+        sprintf(line,"<p>%d. %s (File Size: %.2lf MB) <a href=\"%s\" title=\"Download File\"><img src=\"/Data/download.png\" alt=\"Download\"></a> <a href=\"/remove/%s\" title=\"Remove File\"><img src=\"/Data/Delete.png\" alt=\"Delete File\"></a></p>\n", lineNum, currentFile->d_name, stats.st_size * 0.000001,currentFile->d_name, currentFile->d_name);
+      }
     }
-    printf("Line: %s\n", line);
       write(homePage,line,strlen(line));
       lineNum++;
       continue;
     }
   }
-  free(unit);
   write(homePage,end,strlen(end));
   free(line);
 }
@@ -151,7 +153,7 @@ void sendFile(int clientSock, char * firstLine) {
     if (errno != 0) send404(clientSock);
     stat(firstLine+1,&stats);
   }
-  printf("AAAAAA\n");
+  //printf("AAAAAA\n");
   bytesToRead = stats.st_size;
   void * outFile = malloc(bytesToRead+1);
   int readAmount = read(f,outFile,bytesToRead);
