@@ -103,7 +103,6 @@ void removeFile(int clientSock, char * path) {
   sscanf(path, "/remove/%s",path);
   //printf("path: %s\n", path);
   remove(path);
-  free(path);
 }
 void sendFile(int clientSock, char * firstLine) {
   int isDownload = 0;
