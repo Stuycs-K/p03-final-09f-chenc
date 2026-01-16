@@ -76,11 +76,11 @@ void updateHomePage() {
     }
     if (isHTML) {
       if (stats.st_size < 100) {
-        sprintf(line,"<p>%d. <a href=\"%s\">%s</a> (File Size: %.0lf Bytes) <a href=\"/Download/%s\">Download</a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, stats.st_size * 1.0,currentFile->d_name, currentFile->d_name);
+        sprintf(line,"<p>%d. <a href=\"%s\">%s</a> (File Size: %.0lf Bytes) <a href=\"/Download/%s\">Download</a> <a href=\"/remove/%s\"><img src=\"download.png\" alt=\"Download\"></a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, stats.st_size * 1.0,currentFile->d_name, currentFile->d_name);
       } else if (stats.st_size < 100000) {
-        sprintf(line,"<p>%d. <a href=\"%s\">%s</a> (File Size: %.2lf KB) <a href=\"/Download/%s\">Download</a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, stats.st_size * 0.001,currentFile->d_name, currentFile->d_name);
+        sprintf(line,"<p>%d. <a href=\"%s\">%s</a> (File Size: %.2lf KB) <a href=\"/Download/%s\">Download</a> <a href=\"/remove/%s\"><img src=\"download.png\" alt=\"Download\" /></a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, stats.st_size * 0.001,currentFile->d_name, currentFile->d_name);
       } else {
-        sprintf(line,"<p>%d. <a href=\"%s\">%s</a> (File Size: %.2lf MB) <a href=\"/Download/%s\">Download</a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, stats.st_size * 0.000001,currentFile->d_name, currentFile->d_name);
+        sprintf(line,"<p>%d. <a href=\"%s\">%s</a> (File Size: %.2lf MB) <a href=\"/Download/%s\">Download</a> <a href=\"/remove/%s\"><img src=\"download.png\" alt=\"Download\" /></a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, stats.st_size * 0.000001,currentFile->d_name, currentFile->d_name);
       }
     } else {
       if (stats.st_size < 100) {

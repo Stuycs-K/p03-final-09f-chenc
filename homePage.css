@@ -28,6 +28,9 @@ p {
 input {
   color:white;
 }
+img {
+  size:35px;
+}
 table {
   
   margin:0px;
