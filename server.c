@@ -53,7 +53,7 @@ void send404(int clientSock) {
 }
 void updateHomePage() {
   char * start = "<!doctype html>\n<html>\n<head><meta charset =\"UTF-8\"><link rel=\"stylesheet\" href=\"/homePage.css\" /><!head>\n<body><h1>Welcome, User!</h1>\n";
-  char * end = "<form method=\"post\" enctype=\"multipart/form-data\">\n<input name=\"file\" type=\"file\" /><button> Send Request </button>\n</form>\n<p>After uploading, reload the page for changes.</p>\n</body>\n</html>";
+  char * end = "<form method=\"post\" enctype=\"multipart/form-data\">\n<input name=\"file\" type=\"file\"/><button> Send Request </button>\n</form>\n<p>After uploading, reload the page for changes.</p>\n</body>\n</html>";
   int homePage = open("homePage.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
   write(homePage,start,strlen(start));
   DIR * currentDir;
@@ -64,20 +64,12 @@ void updateHomePage() {
   char * line = malloc(1000);
   while (currentFile = readdir(currentDir)) {
     stat(currentFile->d_name,&stats);
-    #ifdef _DIRENT_HAVE_D_TYPE
-    if (currentFile->d_type == DT_REG) {
-      sprintf(line,"<p>%d. %s <a href=\"%s\">Download<!a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, currentFile->d_name);
+    if (S_ISREG(stats.st_mode)) {
+      //printf("Name: %s\n", currentFile->d_name);
+      sprintf(line,"<p>%d. %s (File Size: %lf MB) <a href=\"%s\">Download</a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, stats.st_size * 0.000001,currentFile->d_name, currentFile->d_name);
       //printf("Like: %s\n", line);
       write(homePage,line,strlen(line));
       lineNum++;
-      continue;
-    }
-    #endif
-    if (S_ISREG(stats.st_mode)) {
-      //printf("Name: %s\n", currentFile->d_name);
-      sprintf(line,"<p>%d. %s <a href=\"%s\">Download</a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, currentFile->d_name);
-      //printf("Like: %s\n", line);
-      write(homePage,line,strlen(line));
       continue;
     }
   }
