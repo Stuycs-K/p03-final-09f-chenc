@@ -111,14 +111,14 @@ void removeFile(int clientSock, char * path) {
 }
 void sendFile(int clientSock, char * firstLine) {
   int isDownload = 0;
-  //printf("Request: %s\n", firstLine);
   sscanf(firstLine,"GET %s", firstLine);
+  //printf("Request: %s\n", firstLine);
   if (!strncmp("/remove/", firstLine, 8)) {
     removeFile(clientSock, firstLine);
     return;
   }
   if (!strncmp("/Download/", firstLine,10)) {
-    
+    isDownload = 1;
   }
   int f, bytesToRead, isHTML, isCSS;
   isHTML = 0;
@@ -144,15 +144,21 @@ void sendFile(int clientSock, char * firstLine) {
       if (end[0] == 'c' && end[1] == 's' && end[2] == 's') isCSS = 1;
       free(end);
     }
+    if (isDownload) {
+      //printf("RAN!\n");
+      sscanf(firstLine,"/Download%s", firstLine);
+      //printf("firstLine: %s\n", firstLine);
+    }
     f = open(firstLine+1, O_RDONLY, 0);
     if (errno != 0) send404(clientSock);
     stat(firstLine+1,&stats);
   }
+  printf("AAAAAA\n");
   bytesToRead = stats.st_size;
   void * outFile = malloc(bytesToRead+1);
   int readAmount = read(f,outFile,bytesToRead);
   char * header = malloc(1024);
-  if (strlen(firstLine) == 1 || isHTML) {
+  if (strlen(firstLine) == 1 || isHTML && !isDownload) {
     strcpy(header,"HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n");
   } else if (isCSS) {
     strcpy(header,"HTTP/1.1 200 OK\nContent-Type: text/css; charset=UTF-8\n\n");
