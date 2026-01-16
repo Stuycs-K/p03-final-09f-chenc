@@ -52,7 +52,7 @@ void send404(int clientSock) {
   exit(1);
 }
 void updateHomePage() {
-  char * start = "<!doctype html>\n<html>\n<head><meta charset =\"UTF-8\"><link rel=\"stylesheet\" href=\"/Data/homePage.css\" /><!head>\n<body><h1>Welcome, User!</h1>\n";
+  char * start = "<!doctype html>\n<html>\n<head><meta charset =\"UTF-8\"><link rel=\"stylesheet\" href=\"/Data/homePage.css\" /><!head>\n<body><h1>Welcome, User!</h1><h3>Available Files:</h3>\n";
   char * end = "<form method=\"post\" enctype=\"multipart/form-data\">\n<input name=\"file\" type=\"file\"/><button> Send Request </button>\n</form>\n<p>After uploading, reload the page for changes.</p>\n</body>\n</html>";
   int homePage = open("homePage.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
   write(homePage,start,strlen(start));
@@ -104,10 +104,6 @@ void removeFile(int clientSock, char * path) {
   //printf("path: %s\n", path);
   remove(path);
   free(path);
-  char * line = malloc(256);
-  strcpy(line,"HTTP/1.1 204 No Content\n\n ");
-  send(clientSock,line,strlen(line),0);
-  free(line);
 }
 void sendFile(int clientSock, char * firstLine) {
   int isDownload = 0;
@@ -115,7 +111,7 @@ void sendFile(int clientSock, char * firstLine) {
   //printf("Request: %s\n", firstLine);
   if (!strncmp("/remove/", firstLine, 8)) {
     removeFile(clientSock, firstLine);
-    return;
+    firstLine = "/";
   }
   if (!strncmp("/Download/", firstLine,10)) {
     isDownload = 1;
@@ -180,10 +176,6 @@ void getFile(int clientSock, char * bytesRecieved) {
   sscanf(bytesRecieved,"POST %s HTTP", path);
   //printf("path: %s\n", path);
   //printf("Diff: %d\n", strncmp("/remove/", path, 8));
-  if (!strncmp("/remove/", path, 8)) {
-    removeFile(clientSock, path);
-    return;
-  }
   free(path);
   while (1) {
     if (!strncmp(ptr,"boundary=",9)) break;
