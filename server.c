@@ -53,7 +53,7 @@ void send404(int clientSock) {
 }
 void updateHomePage() {
   char * start = "<!doctype html>\n<html>\n<head><meta charset =\"UTF-8\"><link rel=\"stylesheet\" href=\"/Data/homePage.css\" /><!head>\n<body><h1>Welcome, User!</h1><h3>Available Files:</h3>\n";
-  char * end = "<form method=\"post\" enctype=\"multipart/form-data\">\n<input name=\"file\" type=\"file\"/><button> Send Request </button>\n</form>\n<p>After uploading, reload the page for changes.</p>\n</body>\n</html>";
+  char * end = "<form method=\"post\" enctype=\"multipart/form-data\">\n<label for=\"fileInput\">Choose File  --> </label><input name=\"file\" type=\"file\" id=\"fileInput\"hidden/><button> Send File </button>\n</form>\n<p>After uploading, reload the page for changes.</p>\n</body>\n</html>";
   int homePage = open("homePage.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
   write(homePage,start,strlen(start));
   DIR * currentDir;
@@ -109,7 +109,7 @@ void sendFile(int clientSock, char * firstLine) {
   sscanf(firstLine,"GET %s", firstLine);
   //printf("Request: %s\n", firstLine);
   int redirect = 0;
-  if (!strncmp("/remove/", firstLine, 8)) {
+  if (!strncmp("/remove/", firstLine, 8) || !strncmp()) {
     removeFile(clientSock, firstLine);
     firstLine = "/";
     redirect = 1;
@@ -224,9 +224,7 @@ void getFile(int clientSock, char * bytesRecieved) {
   int newFile = open(fileName,O_CREAT|O_WRONLY|O_TRUNC,0600);
   //printf("%p, %p\n", endData, startData);
   write(newFile,startData,endData-startData);
-  updateHomePage();
-  strcpy(line,"HTTP/1.1 204 No Content\n\n ");
-  send(clientSock,line,strlen(line),0);
+  sendFile(clientSock,"/new/");
   //printf("Went okay!\n");
   free(fileName);
   free(line);
