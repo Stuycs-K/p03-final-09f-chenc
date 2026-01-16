@@ -63,6 +63,7 @@ void updateHomePage() {
   struct stat stats;
   int lineNum = 1;
   char * line = malloc(5000);
+  char * unit = malloc(25);
   while (currentFile = readdir(currentDir)) {
     stat(currentFile->d_name,&stats);
     if (S_ISREG(stats.st_mode)) {
@@ -74,28 +75,25 @@ void updateHomePage() {
       //printf("End: %s\n", end);
       free(end);
     }
-    if (isHTML) {
-      if (stats.st_size < 100) {
-        sprintf(line,"<p>%d. <a href=\"%s\">%s</a> (File Size: %.0lf Bytes) <a href=\"/Download/%s\"><img src=\"download.png\" alt=\"Download\"></a> <a href=\"/remove/%s\"><img src=\"download.png\" alt=\"Download\"></a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, stats.st_size * 1.0,currentFile->d_name, currentFile->d_name);
-      } else if (stats.st_size < 100000) {
-        sprintf(line,"<p>%d. <a href=\"%s\">%s</a> (File Size: %.2lf KB) <a href=\"/Download/%s\"><img src=\"download.png\" alt=\"Download\"></a> <a href=\"/remove/%s\"><img src=\"download.png\" alt=\"Download\" /></a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, stats.st_size * 0.001,currentFile->d_name, currentFile->d_name);
-      } else {
-        sprintf(line,"<p>%d. <a href=\"%s\">%s</a> (File Size: %.2lf MB) <a href=\"/Download/%s\"><img src=\"download.png\" alt=\"Download\"></a> <a href=\"/remove/%s\"><img src=\"download.png\" alt=\"Download\" /></a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, stats.st_size * 0.000001,currentFile->d_name, currentFile->d_name);
-      }
+    if (stats.st_size < 100) {
+      strcpy(unit,"Bytes");
+    } else if (stats.st_size < 100000){
+      strcpy(unit,"KB");
     } else {
-      if (stats.st_size < 100) {
-        sprintf(line,"<p>%d. %s (File Size: %.0lf Bytes) <a href=\"%s\"><img src=\"download.png\" alt=\"Download\"></a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, stats.st_size * 1.0,currentFile->d_name, currentFile->d_name);
-      } else if (stats.st_size < 100000) {
-        sprintf(line,"<p>%d. %s (File Size: %.2lf KB) <a href=\"%s\"><img src=\"download.png\" alt=\"Download\"></a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, stats.st_size * 0.001,currentFile->d_name, currentFile->d_name);
-      } else {
-        sprintf(line,"<p>%d. %s (File Size: %.2lf MB) <a href=\"%s\"><img src=\"download.png\" alt=\"Download\"></a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, stats.st_size * 0.000001,currentFile->d_name, currentFile->d_name);
-      }
+      strcpy(unit,"MB");
     }
+    if (isHTML) {
+        sprintf(line,"<p>%d. <a href=\"%s\">%s</a> (File Size: %.0lf %s) <a href=\"/Download/%s\"><img src=\"download.png\" alt=\"Download File\"></a> <a href=\"/remove/%s\"><img src=\"Delete.png\" alt=\"Delete File\"></a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, stats.st_size * 1.0, unit, currentFile->d_name, currentFile->d_name);
+    } else {
+        sprintf(line,"<p>%d. %s (File Size: %.0lf %s) <a href=\"%s\"><img src=\"download.png\" alt=\"Download\" title=\"Download\"></a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, stats.st_size * 1.0, unit, currentFile->d_name, currentFile->d_name);
+    }
+    printf("Line: %s\n", line);
       write(homePage,line,strlen(line));
       lineNum++;
       continue;
     }
   }
+  free(unit);
   write(homePage,end,strlen(end));
   free(line);
 }
