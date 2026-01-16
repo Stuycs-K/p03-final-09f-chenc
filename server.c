@@ -109,9 +109,11 @@ void sendFile(int clientSock, char * firstLine) {
   int isDownload = 0;
   sscanf(firstLine,"GET %s", firstLine);
   //printf("Request: %s\n", firstLine);
+  int redirect = 0;
   if (!strncmp("/remove/", firstLine, 8)) {
     removeFile(clientSock, firstLine);
     firstLine = "/";
+    redirect = 1;
   }
   if (!strncmp("/Download/", firstLine,10)) {
     isDownload = 1;
@@ -155,7 +157,11 @@ void sendFile(int clientSock, char * firstLine) {
   int readAmount = read(f,outFile,bytesToRead);
   char * header = malloc(1024);
   if (strlen(firstLine) == 1 || isHTML && !isDownload) {
-    strcpy(header,"HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n");
+    if (redirect) {
+      strcpy(header,"HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\nRefresh: 0; url=\"/\"\n\n");
+    } else {
+      strcpy(header,"HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8\n\n");
+    }
   } else if (isCSS) {
     strcpy(header,"HTTP/1.1 200 OK\nContent-Type: text/css; charset=UTF-8\n\n");
   } else {
