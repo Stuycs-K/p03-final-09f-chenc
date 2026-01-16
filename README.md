@@ -22,4 +22,4 @@ From here, you have three things you can do:
 2. Download files from the server! Choose one of the files from the list, and click the download button. This will make the server send you the file.
 3. Delete files from the server! Choose one of the files from the list, and click the delete button. This will make the server delete the file, and automatically reload the page.
 
-Note that you are constrained to one directory with this program, and attempting to navigate out of the directory will likely not work.
+Note that you are constrained to one directory with this program, and attempting to navigate out of the directory will likely not work. Additionally, this server was designed for use by one user at a time, so use by multiple people could lead to unintended results.
