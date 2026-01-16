@@ -31,7 +31,7 @@ int makeServerSocket() {
   struct sockaddr_in *sockAddr;
   sockAddr = (struct sockaddr_in *)serverInfo->ai_addr;
   inet_ntop(serverInfo->ai_family, &(sockAddr->sin_addr),serverIP, 128);
-  //printf("Server Address: %s:%s\n", serverIP, PORT);
+  printf("Server Running on Port %s\n", PORT);
   listen(serverSock,10);
   freeaddrinfo(hints);
   freeaddrinfo(serverInfo);
@@ -60,20 +60,22 @@ void updateHomePage() {
   currentDir = opendir(".");
   struct dirent * currentFile;
   struct stat stats;
+  int lineNum = 1;
   char * line = malloc(1000);
   while (currentFile = readdir(currentDir)) {
     stat(currentFile->d_name,&stats);
     #ifdef _DIRENT_HAVE_D_TYPE
     if (currentFile->d_type == DT_REG) {
-      sprintf(line,"<p>%s <a href=\"%s\">Download<!a> <a href=\"/remove/%s\">Delete</a></p>\n", currentFile->d_name, currentFile->d_name, currentFile->d_name);
+      sprintf(line,"<p>%d. %s <a href=\"%s\">Download<!a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, currentFile->d_name);
       //printf("Like: %s\n", line);
       write(homePage,line,strlen(line));
+      lineNum++;
       continue;
     }
     #endif
     if (S_ISREG(stats.st_mode)) {
       //printf("Name: %s\n", currentFile->d_name);
-      sprintf(line,"<p>%s <a href=\"%s\">Download<!a> <a href=\"/remove/%s\">Delete</a></p>\n", currentFile->d_name, currentFile->d_name, currentFile->d_name);
+      sprintf(line,"<p>%d. %s <a href=\"%s\">Download</a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, currentFile->d_name);
       //printf("Like: %s\n", line);
       write(homePage,line,strlen(line));
       continue;

@@ -1,11 +1,11 @@
 body {
   background-color: rgb(14,14,14);
   font-family: arial, sans-serif;
-  max-width:688px;
 }
 html {
   display: flex;
   justify-content:center;
+  font: sans-serif;
 }
 h1 {
   font-size: 35px;
@@ -21,4 +21,15 @@ p, h1{
   color:white;
   margin: 1em 0; 
   text-align: center;
+}
+p {
+  text-align:left;
+}
+input {
+  color:white;
+}
+table {
+  
+  margin:0px;
+  padding:0px;
 }
