@@ -10,7 +10,10 @@
 #include <arpa/inet.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
 #define PORT "38203"
+#define KEY "23902"
 void err() {
   printf("Error: %s\n", strerror(errno));
   exit(1);
@@ -226,7 +229,17 @@ void getFile(int clientSock, char * bytesRecieved) {
   startData++;
   //printf("Start: %s\n", startData);
   //printf("End: %s\n", endData);
+  int sem = semget(KEY, 1, 0);
+  struct sembuf sb;
+  sb.sem_num = 0;
+  sb.sem_op = 0;
+  sb.sem_flag = SEM_UNDO;
+  semop(sem, &sb, 1);
+  sb.sem_op = 1;
+  semop(sem, &sb, 1);
   int newFile = open(fileName,O_CREAT|O_WRONLY|O_TRUNC,0600);
+  sb.sem_op = -1;
+  semop(sem, &sb, 1);
   //printf("%p, %p\n", endData, startData);
   write(newFile,startData,endData-startData);
   sendFile(clientSock,"/newFile/");
@@ -253,6 +266,7 @@ void childBehavior(int clientSock) {
 }
 int main() {
   int serverSock = makeServerSocket();
+  int sem = semget(KEY, 1, IPC_CREAT | 0644);
   while (1) {
     int clientSock = makeClientSocket(serverSock);
       pid_t p;
