@@ -43,7 +43,7 @@ int makeClientSocket(int serverSock) {
   int clientSock;
   int size = sizeof(struct sockaddr_storage);
   clientSock = accept(serverSock,(struct sockaddr *)&clientAddr,&size);
-  printf("Connection Success!\n");
+  //printf("Connection Success!\n");
   return clientSock;
 }
 void send404(int clientSock) {
@@ -53,7 +53,7 @@ void send404(int clientSock) {
 }
 void updateHomePage() {
   char * start = "<!doctype html>\n<html>\n<head><meta charset =\"UTF-8\"><link rel=\"stylesheet\" href=\"/Data/homePage.css\" /><!head>\n<body><h1>Welcome, User!</h1><h3>Available Files:</h3>\n";
-  char * end = "<form method=\"post\" enctype=\"multipart/form-data\">\n<label for=\"fileInput\">Choose File  --> </label><input name=\"file\" type=\"file\" id=\"fileInput\"hidden/><button> Send File </button>\n</form>\n<p>After uploading, reload the page for changes.</p>\n</body>\n</html>";
+  char * end = "<form method=\"post\" enctype=\"multipart/form-data\">\n<label for=\"fileInput\">Choose File  --> </label><input name=\"file\" type=\"file\" id=\"fileInput\"hidden/><button> Send File </button>\n</form>\n<p>First Choose Your File, and Then Submit.</p>\n</body>\n</html>";
   int homePage = open("homePage.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
   write(homePage,start,strlen(start));
   DIR * currentDir;
@@ -65,6 +65,7 @@ void updateHomePage() {
   char * line = malloc(5000);
   while (currentFile = readdir(currentDir)) {
     stat(currentFile->d_name,&stats);
+    if (!strcmp(currentFile->d_name,"server")) continue;
     if (S_ISREG(stats.st_mode)) {
       isHTML = 0;
       if (strlen(currentFile->d_name) >= 6) {
@@ -109,8 +110,12 @@ void sendFile(int clientSock, char * firstLine) {
   sscanf(firstLine,"GET %s", firstLine);
   //printf("Request: %s\n", firstLine);
   int redirect = 0;
-  if (!strncmp("/remove/", firstLine, 8) || !strncmp()) {
+  if (!strncmp("/remove/", firstLine, 8)) {
     removeFile(clientSock, firstLine);
+    firstLine = "/";
+    redirect = 1;
+  }
+  if (!strncmp("/newFile/",firstLine,8)) {
     firstLine = "/";
     redirect = 1;
   }
@@ -123,8 +128,8 @@ void sendFile(int clientSock, char * firstLine) {
   struct stat stats;
   if (strlen(firstLine) == 1) {
     updateHomePage();
-    f = open("homePage.html", O_RDONLY, 0);
-    stat("homePage.html",&stats);
+    f = open("Data/homePage.html", O_RDONLY, 0);
+    stat("Data/homePage.html",&stats);
   } else {
     if (strlen(firstLine) >= 6) {
       char * end = (char *) malloc(6);
@@ -170,7 +175,7 @@ void sendFile(int clientSock, char * firstLine) {
   memcpy(output,header,strlen(header));
   memcpy(output+strlen(header),outFile,readAmount);
   int amountSent = send(clientSock,output,readAmount+strlen(header)+1,0);
-  printf("Amount Sent: %d\n", amountSent);
+  //printf("Amount Sent: %d\n", amountSent);
   if (strlen(firstLine) != 1 || isHTML || isCSS) free(header);
   free(outFile);
   free(output);
@@ -224,7 +229,7 @@ void getFile(int clientSock, char * bytesRecieved) {
   int newFile = open(fileName,O_CREAT|O_WRONLY|O_TRUNC,0600);
   //printf("%p, %p\n", endData, startData);
   write(newFile,startData,endData-startData);
-  sendFile(clientSock,"/new/");
+  sendFile(clientSock,"/newFile/");
   //printf("Went okay!\n");
   free(fileName);
   free(line);
