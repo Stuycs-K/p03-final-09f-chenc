@@ -32,12 +32,14 @@ img {
   height:11px;
 }
 button {
-  color:#000000;
+  
   background-color: rgb(72,92,144);
 }
 label {
-  color:rgb(72,92,144);
+  color:white;
+  background-color: rgb(72,92,144);
 }
 button:hover {
   background-color: rgb(165,183,242);
 }
+

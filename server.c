@@ -52,9 +52,9 @@ void send404(int clientSock) {
   exit(1);
 }
 void updateHomePage() {
-  char * start = "<!doctype html>\n<html>\n<head><meta charset =\"UTF-8\"><link rel=\"stylesheet\" href=\"/Data/homePage.css\" /><!head>\n<body><h1>Welcome, User!</h1><h3>Available Files:</h3>\n";
-  char * end = "<form method=\"post\" enctype=\"multipart/form-data\">\n<label for=\"fileInput\">Choose File  --> </label><input name=\"file\" type=\"file\" id=\"fileInput\"hidden/><button> Send File </button>\n</form>\n<p>First Choose Your File, and Then Submit.</p>\n</body>\n</html>";
-  int homePage = open("homePage.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
+  char * start = "<!doctype html>\n<html>\n<head><title>TransferWeb</title><meta charset =\"UTF-8\"><link rel=\"stylesheet\" href=\"/Data/homePage.css\" /><!head>\n<body><h1>Welcome, User!</h1><h3>Available Files:</h3>\n";
+  char * end = "<form method=\"post\" enctype=\"multipart/form-data\">\n<label for=\"fileInput\">Choose File  --> </label><input name=\"file\" type=\"file\" id=\"fileInput\"hidden/><button> Send File </button>\n</form>\n<p>First choose your file, and then click send file.</p>\n</body>\n</html>";
+  int homePage = open("Data/homePage.html",O_WRONLY|O_CREAT|O_TRUNC,0600);
   write(homePage,start,strlen(start));
   DIR * currentDir;
   currentDir = opendir(".");
