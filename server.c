@@ -66,8 +66,13 @@ void updateHomePage() {
     stat(currentFile->d_name,&stats);
     if (S_ISREG(stats.st_mode)) {
       //printf("Name: %s\n", currentFile->d_name);
-      sprintf(line,"<p>%d. %s (File Size: %lf MB) <a href=\"%s\">Download</a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, stats.st_size * 0.000001,currentFile->d_name, currentFile->d_name);
-      //printf("Like: %s\n", line);
+      if (stats.st_size < 100) {
+        sprintf(line,"<p>%d. %s (File Size: %.0lf Bytes) <a href=\"%s\">Download</a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, stats.st_size * 1.0,currentFile->d_name, currentFile->d_name);
+      } else if (stats.st_size < 100000) {
+        sprintf(line,"<p>%d. %s (File Size: %.2lf KB) <a href=\"%s\">Download</a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, stats.st_size * 0.001,currentFile->d_name, currentFile->d_name);
+      } else {
+        sprintf(line,"<p>%d. %s (File Size: %.2lf MB) <a href=\"%s\">Download</a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, stats.st_size * 0.000001,currentFile->d_name, currentFile->d_name);
+      }
       write(homePage,line,strlen(line));
       lineNum++;
       continue;
