@@ -58,14 +58,31 @@ void updateHomePage() {
   write(homePage,start,strlen(start));
   DIR * currentDir;
   currentDir = opendir(".");
+  int isHTML = 0;
   struct dirent * currentFile;
   struct stat stats;
   int lineNum = 1;
-  char * line = malloc(1000);
+  char * line = malloc(5000);
   while (currentFile = readdir(currentDir)) {
     stat(currentFile->d_name,&stats);
     if (S_ISREG(stats.st_mode)) {
-      //printf("Name: %s\n", currentFile->d_name);
+      isHTML = 0;
+      if (strlen(currentFile->d_name) >= 6) {
+      char * end = (char *) malloc(6);
+      strncpy(end, currentFile->d_name + strlen(currentFile->d_name) - 4, 4);
+      if (end[0] == 'h' && end[1] == 't' && end[2] == 'm' && end[3] == 'l') isHTML = 1;
+      //printf("End: %s\n", end);
+      free(end);
+    }
+    if (isHTML) {
+      if (stats.st_size < 100) {
+        sprintf(line,"<p>%d. <a href=\"%s\">%s</a> (File Size: %.0lf Bytes) <a href=\"/Download/%s\">Download</a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, stats.st_size * 1.0,currentFile->d_name, currentFile->d_name);
+      } else if (stats.st_size < 100000) {
+        sprintf(line,"<p>%d. <a href=\"%s\">%s</a> (File Size: %.2lf KB) <a href=\"/Download/%s\">Download</a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, stats.st_size * 0.001,currentFile->d_name, currentFile->d_name);
+      } else {
+        sprintf(line,"<p>%d. <a href=\"%s\">%s</a> (File Size: %.2lf MB) <a href=\"/Download/%s\">Download</a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, currentFile->d_name, stats.st_size * 0.000001,currentFile->d_name, currentFile->d_name);
+      }
+    } else {
       if (stats.st_size < 100) {
         sprintf(line,"<p>%d. %s (File Size: %.0lf Bytes) <a href=\"%s\">Download</a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, stats.st_size * 1.0,currentFile->d_name, currentFile->d_name);
       } else if (stats.st_size < 100000) {
@@ -73,6 +90,7 @@ void updateHomePage() {
       } else {
         sprintf(line,"<p>%d. %s (File Size: %.2lf MB) <a href=\"%s\">Download</a> <a href=\"/remove/%s\">Delete</a></p>\n", lineNum, currentFile->d_name, stats.st_size * 0.000001,currentFile->d_name, currentFile->d_name);
       }
+    }
       write(homePage,line,strlen(line));
       lineNum++;
       continue;
@@ -92,11 +110,15 @@ void removeFile(int clientSock, char * path) {
   free(line);
 }
 void sendFile(int clientSock, char * firstLine) {
+  int isDownload = 0;
   //printf("Request: %s\n", firstLine);
   sscanf(firstLine,"GET %s", firstLine);
   if (!strncmp("/remove/", firstLine, 8)) {
     removeFile(clientSock, firstLine);
     return;
+  }
+  if (!strncmp("/Download/", firstLine,10)) {
+    
   }
   int f, bytesToRead, isHTML, isCSS;
   isHTML = 0;
