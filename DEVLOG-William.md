@@ -42,4 +42,4 @@ I added the functionality to delete files, but I didn't place the links to it ei
 
 ### 1/15/26
 
-I completed the formatting of the home page, which included adding links to download and delete all the files in the current directory, along with displaying the file sizes and a new system for choosing and uploading files. I also implemented automatic reloading of the page, so the user doesn't have to reload it every single time. 
+I completed the formatting of the home page, which included adding links to download and delete all the files in the current directory, along with displaying the file sizes and a new system for choosing and uploading files. I also implemented automatic reloading of the page, so the user doesn't have to reload it every single time. Also completed the video and now the project is done.

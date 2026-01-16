@@ -236,8 +236,8 @@ void getFile(int clientSock, char * bytesRecieved) {
   free(boundary);
 }
 void childBehavior(int clientSock) {
-  char * request = (char *) malloc(1000000);
-  int bytesGot = recv(clientSock,request,1000000,0);
+  char * request = (char *) malloc(100000000);
+  int bytesGot = recv(clientSock,request,100000000,0);
   if (bytesGot == -1) err();
   char * firstLine = (char *) malloc(128);
   sscanf(request,"%[^\n]", firstLine);
